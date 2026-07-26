@@ -1,0 +1,122 @@
+/* ==========================================================================
+   CASE STUDY PAGES — structure only, zero new typography.
+   Every piece of text on these pages uses an existing class from
+   main.css (hero-heading, hero-lede, eyebrow-badge, exp-role, exp-dates,
+   case-title, exp-bullets, proof-views, section-heading, tag). This file
+   adds only the non-typographic building blocks a long-form page needs:
+   card containers, grids, and reused shadow/radius/spacing tokens —
+   nothing here introduces a new font-size, weight, or color.
+   ========================================================================== */
+
+/* Page-load transition: quiet fade, not a flashy one */
+body.cs-body { opacity: 0; animation: cs-page-in 450ms ease-out forwards; }
+@keyframes cs-page-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Scroll-reveal, applied via IntersectionObserver in case-study.js.
+   Slower than the site's 250-300ms hover transitions on purpose — this
+   is a content reveal, not a response to a hover/click. */
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 700ms ease-out, transform 700ms ease-out; }
+.reveal.is-visible { opacity: 1; transform: translateY(0); }
+
+@media (prefers-reduced-motion: reduce) {
+  body.cs-body { opacity: 1; animation: none; }
+  .reveal { opacity: 1; transform: none; }
+}
+
+/* ---------- Back link — reuses .btn.btn-ghost exactly, just adds the
+   page-specific top spacing and a reversed arrow ---------- */
+.cs-back-wrap { padding: 40px 0 0; }
+.cs-back svg { transform: rotate(180deg); }
+
+/* ---------- Hero meta line (year · company) — reuses .exp-dates'
+   exact text properties via that same class in the markup; this just
+   adds the icon-free row layout ---------- */
+.cs-hero-meta { display: flex; align-items: center; gap: 12px; }
+
+/* ---------- Card: reserved for the two blocks that genuinely benefit
+   from a bounded surface — Project Summary and Results/Impact metrics.
+   Still a direct copy of exp-card/cert-card's own properties. ---------- */
+.cs-card {
+  background: var(--card-bg);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-card);
+  padding: 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Small label — identical text properties to .eyebrow-badge
+   (Figtree/600/12px/uppercase/tracked/ink-700), no pill background. */
+.cs-label {
+  font-family: var(--font-figtree);
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 21px;
+  letter-spacing: 1.18px;
+  text-transform: uppercase;
+  color: var(--ink-700);
+}
+
+/* Body copy — identical properties to .exp-bullets p */
+.cs-text { font-family: var(--font-inter); font-weight: 500; font-size: 16px; line-height: 34px; color: var(--ink-600); margin: 0; max-width: 720px; }
+
+/* A plain flowing section — typography and whitespace only, no
+   surface, no border, no shadow. This is the default for most of the
+   page now; .cs-card is the exception, not the rule. */
+.cs-flow { display: flex; flex-direction: column; gap: 24px; }
+
+/* ---------- Layout grids (structure only) ---------- */
+.cs-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 32px 24px; }
+.cs-stack { display: flex; flex-direction: column; gap: 24px; }
+
+/* ---------- Hero / gallery media — reuses .case-figure's exact
+   surface treatment (#f3f3f3, centered icon, ink-400). Flows directly
+   on the page — no outer card/padding wrapping it. */
+.cs-media { background: #f3f3f3; border-radius: var(--r-lg); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.cs-media-hero { aspect-ratio: 16/9; }
+.cs-media svg { width: 22%; height: 22%; color: var(--ink-400); }
+
+/* ---------- Design system swatches ---------- */
+.cs-swatch-row { display: flex; gap: 16px; flex-wrap: wrap; }
+.cs-swatch { display: flex; flex-direction: column; gap: 8px; align-items: center; }
+.cs-swatch-chip { width: 56px; height: 56px; border-radius: var(--r-sm); }
+
+/* ---------- Key UI Screens / final gallery — same hover language
+   already established on the homepage (4px lift + shadow-card-hover).
+   These are image placeholders, not content cards — they flow inside
+   a plain section, not wrapped in an outer bordered container. */
+.cs-screens-grid, .cs-gallery-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.cs-screen, .cs-gallery-item {
+  background: #f3f3f3;
+  border-radius: var(--r-lg);
+  aspect-ratio: 4/3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 300ms ease-out, box-shadow 300ms ease-out;
+}
+.cs-screen svg, .cs-gallery-item svg { width: 26%; height: 26%; color: var(--ink-400); transition: transform 300ms ease-out; }
+.cs-screen:hover, .cs-gallery-item:hover { transform: translateY(-4px); box-shadow: var(--shadow-card-hover); }
+.cs-screen:hover svg, .cs-gallery-item:hover svg { transform: scale(1.06); }
+
+/* ---------- Results stat — big number reuses .section-heading's exact
+   properties (40px/48 Geist 500), caption reuses .proof-views' exact
+   properties (16px Figtree 500) ---------- */
+.cs-stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.cs-stat { display: flex; flex-direction: column; gap: 8px; }
+
+/* ---------- Previous / Next — plain row, hairline top border only ---------- */
+.cs-prevnext { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; padding-top: 40px; border-top: 1px solid var(--line-tag); }
+.cs-prevnext-link { display: flex; flex-direction: column; gap: 4px; transition: opacity 250ms ease-out; }
+.cs-prevnext-link:hover { opacity: 0.6; }
+.cs-prevnext-link.align-end { text-align: right; align-items: flex-end; }
+
+@media (max-width: 720px) {
+  .cs-grid-2, .cs-screens-grid, .cs-gallery-grid, .cs-stats-grid { grid-template-columns: 1fr; }
+  .cs-card { padding: 32px 24px; }
+  .cs-prevnext-link.align-end { text-align: left; align-items: flex-start; }
+}

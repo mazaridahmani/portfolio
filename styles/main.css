@@ -1,0 +1,640 @@
+/* ==========================================================================
+   MAZARI DAHMANI — PORTFOLIO
+   Rebuilt directly from Figma inspection (get_metadata / get_design_context /
+   get_variable_defs on node 4895:38312). Every color, spacing, and divider
+   value below traces to that data — see FIGMA_QA.md for the source mapping.
+   ========================================================================== */
+
+/* ---------- Tokens ---------- */
+:root {
+  /* surfaces */
+  --bg-page: #f7f7f7;
+  --card-bg: #fefefe;
+  --cert-card-bg: #fefefe;
+  --contact-bg: #1b1d21;
+  --contact-ring: #f6f7f8;
+
+  /* ink */
+  --ink-900: #101114;
+  --ink-850: #171717;
+  --ink-700: #565b62;
+  --ink-600: #737373;
+  --ink-500: #7d8289;
+  --ink-450: #878787;
+  --ink-400: #a4a9af;
+  --ink-350: #9aa0a7;
+  --ink-300: #3c4046;
+  --contact-fg: #f6f7f8;
+  --contact-muted: #9aa0a7;
+
+  /* lines */
+  --line-hero-guide: #f7f7f7;   /* hero-only vertical guide */
+  --line-guide: #eee;           /* main vertical guide + all horizontal dividers */
+  --line-tag: #ebebeb;          /* tag/pill borders */
+  --line-badge: rgba(16, 17, 20, 0.08);
+  --line-contact: rgba(246, 247, 248, 0.14);
+  --line-secondary: #ccccc9;    /* Colour/Border/secondary token — contact panel ring */
+
+  /* radius */
+  --r-pill: 40px;
+  --r-lg: 18px;
+  --r-md: 12px;
+  --r-sm: 8px;
+
+  /* shadow/sm (two-layer, from Figma variable defs) */
+  --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  --shadow-card-hover: 0 10px 20px -14px rgba(16, 17, 20, 0.10), 0 2px 6px -2px rgba(16, 17, 20, 0.05);
+
+  /* type */
+  --font-geist: 'Geist', sans-serif;
+  --font-inter: 'Inter', sans-serif;
+  --font-figtree: 'Figtree', sans-serif;
+
+  /* layout */
+  --content-w: 960px;
+  --guide-inset: 4px;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--bg-page);
+  font-family: var(--font-inter);
+  color: var(--ink-900);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+img, svg { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; cursor: pointer; }
+ul { margin: 0; padding: 0; list-style: none; }
+p { margin: 0; }
+
+:focus-visible {
+  outline: 2px solid var(--ink-850);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+.icon-sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+/* ---------- Layout helpers ---------- */
+.container-960 {
+  width: min(var(--content-w), 100% - 32px);
+  margin-inline: auto;
+}
+
+.full-bleed-divider {
+  height: 1px;
+  width: 100%;
+  background: var(--line-guide);
+}
+
+.hero-guide {
+  width: min(var(--content-w), 100% - 32px);
+  margin-inline: auto;
+  border-left: 1px solid var(--line-hero-guide);
+  border-right: 1px solid var(--line-hero-guide);
+  padding-inline: var(--guide-inset);
+}
+
+.column-guide {
+  width: min(var(--content-w), 100% - 32px);
+  margin-inline: auto;
+  border-left: 1px solid var(--line-guide);
+  border-right: 1px solid var(--line-guide);
+  padding-inline: var(--guide-inset);
+}
+
+.spacer-band { height: 100px; }
+
+/* Every divider node in Figma is x:0, width:1280 — i.e. it spans the full
+   root frame edge-to-edge, not just the 960px guide column it visually
+   sits between. Confirmed via get_metadata on multiple divider nodes
+   (4895:38348, 4895:38501, etc.) — all report width:1280 regardless of
+   position in the stack. Since these dividers are nested inside
+   .column-guide (960px, centered, padded), a plain 100% width only
+   reaches the guide's own width — this formula breaks them out to the
+   true viewport width instead, and stays correct at any breakpoint
+   because .column-guide is itself always centered with symmetric padding. */
+.divider-inline {
+  height: 1px;
+  background: var(--line-guide);
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+}
+
+.eyebrow-row { display: flex; flex-direction: column; gap: 16px; align-items: flex-start; padding-inline: 24px; }
+
+.eyebrow-badge {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--card-bg);
+  border: 1px solid var(--line-badge);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-card);
+  font-family: var(--font-figtree);
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 21px;
+  letter-spacing: 1.18px;
+  text-transform: uppercase;
+  color: var(--ink-700);
+}
+
+.section-heading {
+  font-family: var(--font-geist);
+  font-weight: 500;
+  font-size: 40px;
+  line-height: 48px;
+  color: var(--ink-900);
+  max-width: 640px;
+}
+
+.section-shell {
+  padding-top: 89px;
+  padding-bottom: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+
+/* ---------- Buttons & tags ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: var(--r-pill);
+  font-family: var(--font-inter);
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 22px;
+  white-space: nowrap;
+  border: none;
+  padding: 14px 24px;
+  transition: background-color 250ms ease-out, color 250ms ease-out, border-color 250ms ease-out, transform 250ms ease-out, box-shadow 250ms ease-out;
+}
+
+.btn-dark { background: var(--ink-850); color: #fff; }
+.btn-dark:hover { background: var(--ink-900); transform: translateY(-4px); box-shadow: var(--shadow-card-hover); }
+.btn-ghost { background: transparent; color: var(--ink-450); }
+.btn-ghost:hover { background: var(--line-guide); color: var(--ink-900); transform: translateY(-4px); box-shadow: var(--shadow-card-hover); }
+.btn-outline {
+  background: transparent;
+  color: var(--ink-850);
+  border: 1.5px solid var(--line-hero-guide);
+  padding: 14px 20px;
+  align-self: flex-start;
+}
+.btn-light { background: var(--card-bg); color: var(--contact-bg); width: 100%; }
+.btn-light:hover { background: var(--line-guide); transform: translateY(-4px); box-shadow: var(--shadow-card-hover); }
+
+.btn svg { width: 20px; height: 20px; flex-shrink: 0; }
+.tag-row { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
+.tag {
+  background: #fff;
+  border: 1px solid var(--line-tag);
+  border-radius: var(--r-sm);
+  padding: 7px 13px;
+  font-family: var(--font-inter);
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 18px;
+  color: var(--ink-300);
+}
+
+/* ---------- Nav ---------- */
+.site-nav-wrap {
+  position: sticky;
+  top: 24px;
+  z-index: 40;
+  display: flex;
+  justify-content: center;
+  padding: 0 16px;
+}
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(254, 254, 254, 0.5);
+  border-radius: 44px;
+  padding: 8px 16px;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: var(--r-pill);
+  font-family: var(--font-inter);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--ink-700);
+  background: transparent;
+  border: none;
+  white-space: nowrap;
+  transition: color 250ms ease-out, background-color 250ms ease-out, transform 250ms ease-out, box-shadow 250ms ease-out;
+}
+.nav-link:hover { color: var(--ink-900); }
+.nav-link svg { width: 20px; height: 20px; }
+.nav-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  display: block;
+  image-rendering: -webkit-optimize-contrast;
+}
+.nav-cta { background: var(--ink-850); color: #fff; padding: 14px 24px; }
+.nav-cta:hover { background: var(--ink-900); color: #fff; transform: translateY(-2px); box-shadow: var(--shadow-card-hover); }
+
+.nav-toggle { display: none; }
+
+/* ---------- Hero ---------- */
+.hero-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  align-items: flex-start;
+  padding: 64px 24px 48px;
+}
+
+.hero-top { display: flex; flex-direction: column; gap: 16px; align-items: flex-start; }
+
+.avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  display: block;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid #FFFFFF;
+}
+
+.eyebrow-name {
+  font-family: var(--font-inter);
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 34px;
+  color: var(--ink-600);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.hero-heading {
+  font-family: var(--font-geist);
+  font-weight: 600;
+  font-size: 64px;
+  line-height: 68px;
+  color: var(--ink-900);
+  margin: 0;
+}
+.hero-heading span { display: block; color: var(--ink-450); }
+
+.hero-lede {
+  font-family: var(--font-inter);
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 34px;
+  color: var(--ink-600);
+  max-width: 900px;
+}
+
+.hero-meta { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+.hero-meta-item { display: flex; gap: 4px; align-items: center; }
+.hero-meta-icon { width: 18px; height: 18px; flex-shrink: 0; display: block; }
+.hero-meta-item span {
+  font-family: var(--font-inter);
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 34px;
+  color: var(--ink-500);
+}
+
+.hero-actions { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+.hero-actions svg { width: 20px; height: 20px; }
+
+/* ---------- Texture band ---------- */
+/* Frame 4895:38349 in Figma: 960x100, overflow-clip. Pattern node 4895:38350
+   sits inside it at w-960 h-306, centered (left/top 50%, -50% translate),
+   opacity 5%. The uploaded asset is Figma's own export of that pattern
+   already fitted to this exact frame, so object-fit: cover reproduces
+   Figma's fill/crop behavior for the parts of the page where the frame's
+   960px width gets scaled down responsively. */
+.texture-band {
+  height: 100px;
+  position: relative;
+  overflow: hidden;
+}
+.texture-band-pattern {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  opacity: 0.05;
+  pointer-events: none;
+}
+
+/* ---------- Social proof ---------- */
+.proof-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+.proof-card {
+  background: var(--card-bg);
+  border-radius: var(--r-sm);
+  box-shadow: var(--shadow-card);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform 300ms ease-out, box-shadow 300ms ease-out, border-color 300ms ease-out;
+}
+.proof-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-card-hover);
+  border-color: var(--line-tag);
+}
+.proof-icon {
+  display: block;
+  flex-shrink: 0;
+  align-self: flex-start;
+  filter: grayscale(100%);
+  transition: filter 300ms ease-out;
+}
+.proof-card:hover .proof-icon { filter: grayscale(0%); }
+.proof-handle { font-family: var(--font-figtree); font-weight: 500; font-size: 16px; line-height: 32px; color: var(--ink-400); }
+.proof-views { font-family: var(--font-figtree); font-weight: 500; font-size: 16px; line-height: 24px; color: var(--ink-700); }
+
+/* ---------- Work experience ---------- */
+.exp-list { display: flex; flex-direction: column; gap: 16px; }
+.exp-card {
+  background: var(--card-bg);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-card);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform 300ms ease-out, box-shadow 300ms ease-out, border-color 300ms ease-out;
+}
+.exp-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-card-hover);
+  border-color: var(--line-tag);
+}
+.exp-head { display: flex; gap: 16px; align-items: center; }
+.exp-logo {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: block;
+  filter: grayscale(100%);
+  transition: filter 300ms ease-out;
+}
+.exp-card:hover .exp-logo { filter: grayscale(0%); }
+.exp-logo-mark {
+  /* Figma's "Mask group" logo node has no background or radius of its
+     own — it's the bare vector shape at 40x40, confirmed via fresh
+     get_design_context on 4929:8054. */
+}
+.exp-logo-photo {
+  /* Figma's Teletic logo sits in a 40x40 container with radius:10px
+     and overflow:hidden clipping an oversized cropped photo — confirmed
+     via fresh get_design_context on 4929:8082. */
+  border-radius: 10px;
+  overflow: hidden;
+  object-fit: cover;
+}
+.exp-role { font-family: var(--font-inter); font-weight: 600; font-size: 16px; line-height: 24px; color: var(--ink-850); margin: 0 0 4px; }
+.exp-dates { font-family: var(--font-inter); font-weight: 500; font-size: 16px; line-height: 24px; color: var(--ink-700); margin: 0; }
+.exp-bullets { display: flex; flex-direction: column; gap: 8px; }
+.exp-bullets li { display: flex; gap: 13px; align-items: flex-start; }
+.exp-bullets li::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 2.5px;
+  background: var(--ink-350);
+  margin-top: 14.5px;
+  flex-shrink: 0;
+}
+.exp-bullets p { font-family: var(--font-inter); font-weight: 500; font-size: 16px; line-height: 34px; color: var(--ink-600); }
+
+/* ---------- Case studies ---------- */
+.case-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.case-card {
+  background: var(--card-bg);
+  border-radius: var(--r-lg);
+  box-shadow: 0 1px 2px 0 rgba(16, 17, 20, 0.05);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform 300ms ease-out, box-shadow 300ms ease-out, border-color 300ms ease-out;
+}
+.case-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-card-hover);
+  border-color: var(--line-tag);
+}
+.case-figure {
+  height: 248px;
+  background: #f3f3f3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.case-figure img { display: block; max-width: 100%; max-height: 100%; filter: grayscale(100%); transition: filter 300ms ease-out; }
+.case-card:hover .case-figure img { filter: grayscale(0%); }
+.case-body { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+.case-title-row { display: flex; align-items: baseline; justify-content: space-between; }
+.case-title { font-family: var(--font-inter); font-weight: 600; font-size: 20px; line-height: 32px; color: var(--ink-850); margin: 0; }
+.case-year { font-family: var(--font-figtree); font-weight: 500; font-size: 16px; color: var(--ink-700); }
+.case-desc { font-family: var(--font-figtree); font-weight: 500; font-size: 18px; line-height: 23.8px; color: var(--ink-600); }
+
+/* ---------- Certifications ---------- */
+.cert-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.cert-card {
+  background: var(--cert-card-bg);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-card);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform 300ms ease-out, box-shadow 300ms ease-out, border-color 300ms ease-out;
+}
+.cert-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-card-hover);
+  border-color: var(--line-tag);
+}
+.cert-icon { display: block; height: 40px; width: auto; filter: grayscale(100%); transition: filter 300ms ease-out; }
+.cert-card:hover .cert-icon { filter: grayscale(0%); }
+.cert-name { font-family: var(--font-inter); font-weight: 600; font-size: 20px; line-height: 32px; color: var(--ink-850); margin: 0; }
+.cert-issued { font-family: var(--font-figtree); font-weight: 500; font-size: 18px; line-height: 24.6px; color: var(--ink-400); }
+.cert-id {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-family: var(--font-inter);
+  font-size: 16px;
+  color: var(--ink-700);
+}
+.cert-id-label { font-weight: 500; }
+.cert-id-value { font-weight: 500; }
+
+/* ---------- Contact ---------- */
+.contact-outer { padding-top: 89px; padding-bottom: 4px; }
+.contact-ring {
+  background: transparent;
+  border: 2px solid var(--line-secondary);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+.contact-panel {
+  background: var(--contact-bg);
+  border-radius: calc(var(--r-lg) - 2px);
+  padding: 48px;
+  display: flex;
+  gap: 80px;
+  position: relative;
+  overflow: hidden;
+}
+/* Real pattern asset is already cropped by Figma to exactly the sliver
+   visible within the panel — confirmed by computing where the full
+   960x306 pattern (centered at panel-center + (520,-402)) intersects
+   the panel's 948x750 bounds: it lands flush with the top-right corner,
+   434x126, 0px inset on both the top and right edges. No further
+   positioning math needed; the asset's own size IS the placement. */
+.contact-panel-texture {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 434px;
+  height: 126px;
+  opacity: 0.05;
+  z-index: -1;
+  pointer-events: none;
+  display: block;
+}
+.contact-col { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 40px; }
+.contact-header-group { display: flex; flex-direction: column; gap: 16px; }
+.contact-heading { font-family: var(--font-geist); font-weight: 500; font-size: 40px; line-height: 48px; color: var(--contact-fg); margin: 0; }
+.contact-lede { font-family: var(--font-inter); font-weight: 500; font-size: 16px; line-height: 34px; color: var(--ink-600); max-width: 386px; margin: 0; }
+.contact-links { display: flex; flex-direction: column; }
+.contact-link-row, .contact-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--line-contact);
+  width: 100%;
+}
+.contact-link-row {
+  background: none;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  color: inherit;
+  text-align: left;
+  transition: border-color 250ms ease-out;
+}
+.contact-link-row:hover { border-bottom-color: rgba(246, 247, 248, 0.35); }
+.contact-link-icon { width: 16px; height: 16px; flex-shrink: 0; display: block; align-self: center; }
+.contact-row-text { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.contact-row-label { display: block; font-family: var(--font-figtree); font-weight: 600; font-size: 12px; line-height: 16px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--contact-muted); }
+.contact-row-value { display: block; font-family: var(--font-inter); font-weight: 600; font-size: 16px; line-height: 22px; color: var(--contact-fg); }
+
+.contact-form-col { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 24px; }
+.contact-plane-wrap {
+  width: 212px;
+  height: 212px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.contact-plane {
+  display: block;
+  width: 217px;
+  height: 216px;
+  max-width: 100%;
+  will-change: transform;
+  transform: translate3d(0, 0, 0) rotate(0deg);
+}
+.contact-form { display: flex; flex-direction: column; gap: 24px; width: 100%; }
+.field { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+.field label { font-family: var(--font-inter); font-weight: 600; font-size: 14px; line-height: 20px; color: var(--contact-muted); }
+.field input, .field textarea {
+  background: rgba(246, 247, 248, 0.04);
+  border: 1px solid rgba(246, 247, 248, 0.1);
+  border-radius: var(--r-md);
+  padding: 16px;
+  font-family: var(--font-inter);
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--contact-fg);
+  width: 100%;
+}
+.field textarea { resize: vertical; min-height: 88px; font-family: var(--font-inter); }
+.field input::placeholder, .field textarea::placeholder { color: var(--ink-700); }
+
+/* ---------- Footer ---------- */
+.site-footer {
+  padding: 24px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.footer-copy { font-family: var(--font-inter); font-weight: 500; font-size: 16px; line-height: 21px; color: var(--ink-700); margin: 0; }
+.footer-top-btn svg { width: 20px; height: 20px; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 860px) {
+  .hero-heading { font-size: 44px; line-height: 50px; }
+  .section-heading { font-size: 32px; line-height: 38px; }
+  .proof-grid, .case-grid, .cert-grid { grid-template-columns: 1fr; }
+  .contact-panel { flex-direction: column; gap: 48px; padding: 32px; }
+  .contact-plane-wrap { display: none; }
+  .site-footer { flex-direction: column; align-items: flex-start; }
+}
+
+@media (max-width: 640px) {
+  .nav-link span.nav-label { display: none; }
+  .nav-link { padding: 12px; }
+  .nav-cta { padding: 14px 18px; }
+  .hero-heading { font-size: 34px; line-height: 40px; }
+  .hero-inner { padding: 48px 16px 32px; }
+  .section-shell { padding-top: 56px; gap: 32px; }
+  .eyebrow-row { padding-left: 16px; padding-right: 16px; }
+}
