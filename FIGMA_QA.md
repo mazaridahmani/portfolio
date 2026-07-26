@@ -1225,6 +1225,47 @@ real key); button re-enables and resets its label afterward; no
 uncaught JS errors; full-page structure check still 22 `.column-guide`
 children.
 
+## SEO implementation — robots.txt, sitemap.xml, full head tags, Person schema
+
+Base domain used throughout: `https://mazaridahmani.com` (per the
+Website URL given for the Person schema). All canonical/OG/sitemap URLs
+are built from this.
+
+**robots.txt**: allows full crawl access, points to the sitemap.
+
+**sitemap.xml**: all three public pages (home, MPay, Tatheer), valid
+XML (confirmed via `xml.dom.minidom` parse), with priority weighted
+toward the homepage (1.0) vs. case studies (0.8).
+
+**Per-page `<head>` tags**, all three pages: unique `<title>`
+(43–52 chars — within Google's ~60-char display limit), unique meta
+description (145–158 chars — within the ~155-160 char limit), explicit
+`robots: index, follow`, canonical URL, full Open Graph set (type,
+site_name, title, description, url, image + width/height/alt, locale),
+and Twitter Card (`summary_large_image` + title/description/image).
+Verified all three titles and all three descriptions are genuinely
+distinct from each other (not just templated variations), and that
+none of the new tags introduced any visual change — checked the page
+structure count (still 22 `.column-guide` children) and spot-checked
+the avatar/nav are untouched.
+
+**Person JSON-LD**, all three pages: name, jobTitle, url, and all four
+`sameAs` profile links (LinkedIn, Behance, Instagram, Mostaql) exactly
+as given. Validated as parseable JSON on each page via a live DOM
+extraction + `json.loads`, not just visual inspection of the markup.
+
+**Open Graph images**: rather than reusing an undersized/cropped
+existing image, generated three proper 1200×630 share images
+(`assets/seo/og-home.png`, `og-mpay.png`, `og-tatheer.png`) — the
+standard OG size, matching the site's dark palette. Checked rendered
+text widths against the canvas before finalizing to confirm nothing
+overflows.
+
+Verified in the live build: zero failed requests, zero console errors
+on any page; canonical/OG/Twitter URLs all resolve to the stated
+domain; JSON-LD parses cleanly; nothing in the visible design or DOM
+structure changed.
+
 ## Known gap
 
 - Nav has a "Skills" link (`#skills`), but there is no Skills section
