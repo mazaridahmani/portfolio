@@ -34,7 +34,7 @@
   }
   if (copyBtn) {
     copyBtn.addEventListener('click', async () => {
-      const email = 'hello@mazaridahmani.design';
+      const email = 'uimazari@gmail.com';
       try {
         await navigator.clipboard.writeText(email);
         showToast('Email copied to clipboard');
@@ -44,17 +44,66 @@
     });
   }
 
-  // Contact form — no backend, so hand off to the user's mail client
+  // Contact form — sends directly via Web3Forms (https://web3forms.com), a
+  // free service built exactly for static sites with no backend of their
+  // own: a plain fetch() call, no server, no build step required.
+  //
+  // ACTION NEEDED: replace the placeholder below with your own Access Key.
+  // Get one free at https://web3forms.com by entering uimazari@gmail.com —
+  // no account/password needed, just a one-time email confirmation. Every
+  // submission then lands in that inbox automatically. Until a real key is
+  // in place, submissions will correctly show the error state below rather
+  // than silently pretending to succeed.
+  const WEB3FORMS_ACCESS_KEY = 'YOUR_WEB3FORMS_ACCESS_KEY';
+
   const form = document.getElementById('contact-form');
+  const formStatus = document.getElementById('form-status');
+
+  function setFormStatus(type, message) {
+    if (!formStatus) return;
+    formStatus.textContent = message;
+    formStatus.classList.remove('is-success', 'is-error');
+    if (type) formStatus.classList.add(type === 'success' ? 'is-success' : 'is-error');
+  }
+
   if (form) {
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
+      const submitBtn = form.querySelector('button[type="submit"]');
       const name = form.name.value.trim();
       const email = form.email.value.trim();
       const message = form.message.value.trim();
-      const subject = encodeURIComponent(`Project inquiry from ${name || 'website visitor'}`);
-      const body = encodeURIComponent(`${message}\n\n— ${name} (${email})`);
-      window.location.href = `mailto:hello@mazaridahmani.design?subject=${subject}&body=${body}`;
+      const subject = `Portfolio inquiry from ${name || 'a website visitor'}`;
+
+      setFormStatus(null, '');
+      submitBtn.disabled = true;
+      const originalLabel = submitBtn.textContent;
+      submitBtn.textContent = 'Sending…';
+
+      try {
+        const response = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({
+            access_key: WEB3FORMS_ACCESS_KEY,
+            subject,
+            name,
+            email,
+            message,
+          }),
+        });
+        const data = await response.json();
+        if (!response.ok || !data.success) {
+          throw new Error(data.message || 'Request failed');
+        }
+        setFormStatus('success', "Thanks — your message is on its way.");
+        form.reset();
+      } catch (err) {
+        setFormStatus('error', "Couldn't send that. Please email me directly instead.");
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalLabel;
+      }
     });
   }
 

@@ -199,6 +199,17 @@ p { margin: 0; }
 }
 .btn-light { background: var(--card-bg); color: var(--contact-bg); width: 100%; }
 .btn-light:hover { background: var(--line-guide); transform: translateY(-4px); box-shadow: var(--shadow-card-hover); }
+.btn-light:disabled { opacity: 0.6; cursor: default; transform: none; box-shadow: none; }
+.form-status {
+  font-family: var(--font-inter);
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+  margin: 0;
+  min-height: 20px;
+}
+.form-status.is-success { color: #4caf7d; }
+.form-status.is-error { color: #e0685f; }
 
 .btn svg { width: 20px; height: 20px; flex-shrink: 0; }
 .tag-row { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }

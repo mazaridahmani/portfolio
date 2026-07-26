@@ -1179,6 +1179,52 @@ Verified in the live build: all five icon links resolve with zero
 failed requests on all three pages; each file's actual pixel dimensions
 confirmed to match its filename (16×16, 32×32, 48×48, 180×180).
 
+## Contact form — real send + new email address
+
+**Important constraint, stated upfront rather than glossed over**: this
+is a static site with no backend of its own — a browser cannot send
+SMTP email directly, full stop, regardless of framing. "Fully
+functional" direct sending on a static site requires a third-party
+service to actually relay the message. Implemented against Web3Forms
+(https://web3forms.com), a free service built for exactly this — no
+server, no build step, just a `fetch()` call, consistent with this
+project's "zero dependencies" principle from the very first build.
+
+**Action needed from the user**: `scripts/main.js` has a placeholder,
+clearly commented, where a real Web3Forms Access Key needs to go
+(`WEB3FORMS_ACCESS_KEY`). Getting one takes about 30 seconds at
+web3forms.com — enter `uimazari@gmail.com`, confirm the email, get the
+key back. This is not something that could be done here: creating
+accounts/generating credentials on someone else's behalf isn't
+something I can do. Until a real key is in place, submissions correctly
+show the error state (verified below) rather than silently pretending
+to succeed.
+
+Changes:
+- Email display and copy-to-clipboard both updated to
+  `uimazari@gmail.com` — verified directly (clipboard content after
+  clicking the copy row matches exactly).
+- Form now sends name, email, and message, plus an auto-generated
+  subject ("Portfolio inquiry from {name}") since there's no separate
+  subject field in the existing form — matches the "if available"
+  qualifier in the request without adding a new input.
+- Submit button shows "Sending…" and disables during the request, then
+  re-enables regardless of outcome.
+- Added a single status line under the button (`#form-status`) for
+  success/error feedback — the one new visual element this required;
+  everything else (layout, spacing, existing typography) is untouched.
+  Success/error colors reuse hex values already present elsewhere in
+  this codebase (the case-study swatch greens/reds), not new colors.
+
+Verified in the live build: displayed email and clipboard content both
+correct; clicking submit shows "Sending…", then correctly resolves to
+the error state with the exact right message and CSS class (expected,
+since this test ran against the placeholder key from a local `file://`
+origin — Web3Forms itself works fine from a real hosted origin with a
+real key); button re-enables and resets its label afterward; no
+uncaught JS errors; full-page structure check still 22 `.column-guide`
+children.
+
 ## Known gap
 
 - Nav has a "Skills" link (`#skills`), but there is no Skills section
