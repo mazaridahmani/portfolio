@@ -8,6 +8,11 @@
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (!supportsCustomCursor || reduceMotion) return;
 
+  // Guard against double-initialization (e.g. the script being included
+  // twice by accident, or a bfcache page restore re-running it) — never
+  // create a second set of cursor elements or a second set of listeners.
+  if (document.body.classList.contains('has-custom-cursor')) return;
+
   // Structure: a "wrap" element handles position only (updated every
   // frame via a custom property, no CSS transition on it — so it never
   // fights the hover/click scale transitions), and an inner dot/ring

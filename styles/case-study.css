@@ -11,8 +11,8 @@
 /* Page-load transition: quiet fade, not a flashy one */
 body.cs-body { opacity: 0; animation: cs-page-in 450ms ease-out forwards; }
 @keyframes cs-page-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 /* Scroll-reveal, applied via IntersectionObserver in case-study.js.

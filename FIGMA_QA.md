@@ -1266,6 +1266,47 @@ on any page; canonical/OG/Twitter URLs all resolve to the stated
 domain; JSON-LD parses cleanly; nothing in the visible design or DOM
 structure changed.
 
+## Cursor flicker fixed (real CSS bug, not guessed) + ring made much subtler
+
+**Root cause of the flicker, confirmed empirically before touching
+anything**: `body.cs-body`'s page-load animation ended on `transform:
+translateY(0)` with `animation-fill-mode: forwards`, which permanently
+leaves a non-`none` transform on `<body>` (verified: computed transform
+was `matrix(1,0,0,1,0,0)`, not `none`, even after the animation
+finished). Per the CSS spec, any non-`none` transform on an ancestor —
+even an identity transform — makes that ancestor the containing block
+for `position: fixed` descendants. The cursor elements are children of
+`<body>`, so on case-study pages specifically they stopped being
+positioned relative to the true viewport and started scrolling *with*
+the page instead. Proved this directly: scrolling 800px with the mouse
+held still moved the cursor's bounding box from y=300 to y=-500 before
+the fix. The homepage has no such animation on `<body>`, which is
+exactly why this bug was case-study-specific and never showed up there.
+
+**Fix**: removed the `transform` from the `cs-page-in` keyframes,
+keeping only the opacity fade. Same quiet page-load feel, no lingering
+transform left on `<body>`. Re-verified: `getComputedStyle(document
+.body).transform` is now `none`, and the same scroll test now returns
+an *identical* bounding box before and after scrolling, on all three
+pages.
+
+**Also added**: a guard at the top of `cursor.js` that returns early if
+`document.body` already has the `has-custom-cursor` class, so the
+script can never create a second set of cursor elements/listeners even
+if it were ever accidentally included twice.
+
+**Ring made much more subtle**, per the request — opacity dropped to
+0.35 at rest (dot stays at full opacity 1, unchanged), rising only to
+0.55 on hover so the enlarge-on-hover feedback still registers without
+the ring ever becoming a heavy shape. Confirmed the click-bounce
+animation (the overshoot past scale 1.0 verified in earlier rounds) is
+completely unaffected by this — re-sampled it and it still peaks at
+~1.02 before settling.
+
+Verified across all three pages: dot opacity 1, ring opacity 0.35 at
+rest / 0.55 on hover, scroll no longer breaks fixed positioning, click
+bounce intact, zero failed requests, zero console errors.
+
 ## Known gap
 
 - Nav has a "Skills" link (`#skills`), but there is no Skills section
