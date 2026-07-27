@@ -44,18 +44,12 @@
     });
   }
 
-  // Contact form — sends directly via Web3Forms (https://web3forms.com), a
-  // free service built exactly for static sites with no backend of their
-  // own: a plain fetch() call, no server, no build step required.
-  //
-  // ACTION NEEDED: replace the placeholder below with your own Access Key.
-  // Get one free at https://web3forms.com by entering uimazari@gmail.com —
-  // no account/password needed, just a one-time email confirmation. Every
-  // submission then lands in that inbox automatically. Until a real key is
-  // in place, submissions will correctly show the error state below rather
-  // than silently pretending to succeed.
-  const WEB3FORMS_ACCESS_KEY = 'YOUR_WEB3FORMS_ACCESS_KEY';
-
+  // Contact form — sends via Formspree (https://formspree.io). Submits with
+  // fetch() and Accept: application/json so Formspree returns JSON instead
+  // of redirecting to its default "thanks" page — the page never navigates
+  // away. The endpoint is read from the form's own action attribute, so
+  // there's a single source of truth for it (also means the form still
+  // works via a normal browser POST if JS ever fails to load).
   const form = document.getElementById('contact-form');
   const formStatus = document.getElementById('form-status');
 
@@ -69,11 +63,18 @@
   if (form) {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
+
+      // Required-field validation. e.preventDefault() above suppresses the
+      // browser's native validation UI, so it's re-triggered explicitly —
+      // reportValidity() both blocks submission on invalid fields AND shows
+      // the same built-in validation bubbles the browser would show anyway.
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+
       const submitBtn = form.querySelector('button[type="submit"]');
-      const name = form.name.value.trim();
-      const email = form.email.value.trim();
-      const message = form.message.value.trim();
-      const subject = `Portfolio inquiry from ${name || 'a website visitor'}`;
+      const formData = new FormData(form);
 
       setFormStatus(null, '');
       submitBtn.disabled = true;
@@ -81,25 +82,21 @@
       submitBtn.textContent = 'Sending…';
 
       try {
-        const response = await fetch('https://api.web3forms.com/submit', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-          body: JSON.stringify({
-            access_key: WEB3FORMS_ACCESS_KEY,
-            subject,
-            name,
-            email,
-            message,
-          }),
+        const response = await fetch(form.action, {
+          method: form.method || 'POST',
+          headers: { Accept: 'application/json' },
+          body: formData,
         });
-        const data = await response.json();
-        if (!response.ok || !data.success) {
-          throw new Error(data.message || 'Request failed');
+
+        if (!response.ok) {
+          const data = await response.json().catch(() => null);
+          throw new Error(data?.errors?.map((err) => err.message).join(', ') || 'Request failed');
         }
-        setFormStatus('success', "Thanks — your message is on its way.");
+
+        setFormStatus('success', 'Your message has been sent successfully.');
         form.reset();
       } catch (err) {
-        setFormStatus('error', "Couldn't send that. Please email me directly instead.");
+        setFormStatus('error', "Something went wrong — please email me directly instead.");
       } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = originalLabel;

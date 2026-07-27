@@ -1307,6 +1307,44 @@ Verified across all three pages: dot opacity 1, ring opacity 0.35 at
 rest / 0.55 on hover, scroll no longer breaks fixed positioning, click
 bounce intact, zero failed requests, zero console errors.
 
+## Contact form switched to Formspree
+
+Replaced the previous Web3Forms integration (which needed a user-
+generated access key) with Formspree, using the real endpoint provided:
+`https://formspree.io/f/mpqvkypn`.
+
+- `<form>` now has real `action`/`method` attributes pointing at that
+  endpoint — this means the form still works via a plain browser POST
+  even if JS fails to load, not just via the fetch() path.
+- JS reads the endpoint from `form.action` (single source of truth,
+  not hardcoded twice) and submits via `fetch()` with `Accept:
+  application/json`, which is what makes Formspree return JSON instead
+  of redirecting to its default thank-you page — confirmed directly
+  that the page URL never changes after a successful submission.
+- Required-field validation happens via `form.checkValidity()` /
+  `reportValidity()` before any network request — confirmed 0 requests
+  reach Formspree when the form is submitted empty, and the browser's
+  native validation bubble fires as expected.
+- Success message is the exact text requested
+  ("Your message has been sent successfully."), confirmed via the live
+  `#form-status` element after mocking a successful response — same
+  element/classes used for the Web3Forms version, so no new UI was
+  introduced.
+- Form fields confirmed cleared after success; submit button confirmed
+  to always re-enable and reset its label, on both success and failure
+  paths.
+
+No other UI, styling, or animation was touched — same `.form-status`
+success/error styling, same button loading-state behavior, same
+`btn-light` hover transition, from previous rounds.
+
+Verified in the live build: form action/method correct; empty
+submission blocked with zero network requests; valid submission
+targets the exact right URL with the right method and header; mocked
+success shows the exact requested message, clears the form, and never
+navigates away; mocked failure shows a friendly error; full-page
+structure check still 22 `.column-guide` children, no console errors.
+
 ## Known gap
 
 - Nav has a "Skills" link (`#skills`), but there is no Skills section
