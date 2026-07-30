@@ -1345,6 +1345,396 @@ success shows the exact requested message, clears the form, and never
 navigates away; mocked failure shows a friendly error; full-page
 structure check still 22 `.column-guide` children, no console errors.
 
+## Design System Refinement
+
+**MCP unreachable this round**: tried the provided Meridian reference
+file (`ltAj0zSTmec4sxQWTXdV3b`) twice via `get_metadata` and got the
+same result both times — *"you need to enable the Dev Mode MCP Server
+in the Figma desktop app"* — a connection-level issue, not a
+permissions one like earlier rounds. Also only one of the "several"
+mentioned reference links actually came through. Flagged both to the
+user rather than fabricating insights about a file I couldn't inspect.
+Proceeded with an internal audit against established design-system
+principles instead, since that's independent of external reference
+access. Full writeup in `DESIGN_SYSTEM.md`; summary of concrete changes
+below.
+
+**Real inconsistencies found and fixed** (not invented busywork):
+- Four separate rules used the literal `#f3f3f3` for the same "media
+  placeholder surface" — consolidated into `--surface-media`.
+- `#fff` (4 places) and one `#FFFFFF` (inconsistent casing, the
+  avatar's border) — consolidated into `--white`.
+- The Formspree/Web3Forms success/error colors (`#4caf7d`/`#e0685f`)
+  were never tokenized — now `--color-success`/`--color-error`.
+- `.btn-light` was the *only* button variant with a `:disabled` rule;
+  `.btn-dark`/`.btn-ghost`/`.nav-cta` had none. Moved to the shared
+  `.btn` base rule so every variant behaves consistently, and removed
+  the now-redundant `.btn-light`-specific copy.
+- Zero `:active` state existed anywhere in the stylesheet. Added one
+  shared, subtle press state on the `.btn` base rule.
+- Per-field form error states didn't exist — only the whole-form
+  status message did. Added `.field.has-error` (red border + inline
+  message) wired to real-time clearing as each field is corrected.
+
+**Real bug found and fixed**: the global focus-visible ring
+(`--ink-850`, #171717) is almost invisible against the dark contact
+panel's own background (`--contact-bg`, #1b1d21 — nearly the same
+color). Scoped a light-colored ring specifically to `.contact-panel`.
+This is a genuine accessibility gap that had nothing to do with the
+Meridian reference — found it by auditing this project's own CSS.
+
+**Spacing scale formalized, not invented**: extracted the actual
+distinct spacing values already in use across the codebase (a clean
+4px-based progression: 4/8/12/16/20/24/32/40/48/56/64/80) and named
+them as `--space-*` tokens. Deliberately did *not* force the Figma-
+exact outlier values (89px, 7px, 13px, 14px) into this scale — those
+are real spec values traced to the original Figma file across many
+earlier rounds, and changing them would alter the site's pixel
+fidelity, which contradicts "don't change the visual identity."
+
+**Not done**: no Modal component was added — none exists anywhere in
+the current product, and building one with zero usage would add
+unused complexity, working against the request's own "remove
+unnecessary complexity" goal. Noted explicitly rather than silently
+skipped.
+
+**A subtle but real fix while wiring the field-error states**: the
+contact form didn't have `novalidate`, which meant the browser's own
+constraint validation was intercepting invalid submissions *before*
+the JS `submit` event ever fired — so the new per-field error code
+would have silently never executed. Added `novalidate` so the form's
+own JS validation (which still calls `reportValidity()` manually) is
+what actually runs.
+
+Verified in the live build across all three pages: zero visual/color
+regressions (spot-checked computed values for tag background, avatar
+border, nav-cta text, case-figure background — all identical to
+before the token consolidation); empty-form submit correctly marks all
+three fields `.has-error`; typing a valid value clears that field's
+error in real time; dark-panel focus ring now visibly light-colored;
+disabled state confirmed (via a genuinely pending request, not a
+route-timing artifact) to synchronously disable the button and show
+"Sending…"; `:active` press state confirmed (opacity 0.85); full-page
+structure check still 22 `.column-guide` children on the homepage;
+zero failed requests, zero console errors on any page.
+
+## Design System — real Meridian comparison (MCP restored)
+
+Figma MCP came back online this round (confirmed via `get_metadata` on
+`17031:160281` returning real data instead of the "enable Dev Mode MCP
+Server" error from the prior two rounds). Pulled real design context
+from three parts of the file: the Typography component set
+(`473:1978`), the H1 component's responsive breakpoint variants
+(`468:5645` — confirmed as literally shadcn/ui's typography docs, with
+a direct link to `ui.shadcn.com/docs/components/typography#h1`), and
+the Select/dropdown component with full light/dark/disabled states
+(`17086:207901`, linking to `ui.shadcn.com/docs/components/select`).
+
+This confirmed the file is exactly what it looked like a few rounds
+back: a shadcn/ui-based component library's own documentation site
+("Meridian" / shadcndesign.com), not portfolio content — consistent
+with the reasoning for declining to literally implement its 29-49
+individual nodes as new sections a few turns ago.
+
+Used the real data as an actual comparison rather than general
+knowledge this time. Result, in short: this project's own shadow
+system (two-tier: resting/hover), border treatment (different
+approach per light vs. dark surface, not just a dimmed color), and
+responsive per-breakpoint heading scale all independently already
+matched how Meridian structures the same things — confirmed via direct
+inspection of both codebases, not assumed. No CSS changes were made
+this round because none were warranted by what the comparison found;
+full writeup, including what was deliberately *not* adopted (Meridian's
+hierarchical token naming — real churn risk for zero benefit; its
+actual colors/fonts — would change the site's visual identity) is in
+`DESIGN_SYSTEM.md`.
+
+Verified nothing regressed: all three pages still load with zero failed
+requests and zero console errors.
+
+## Case study pages rebuilt to match the real Figma redesign
+
+MCP was disconnected entirely at the start of this request (tools not
+found, then `search_mcp_registry` required opt-in). User reconnected it
+mid-conversation; once available, inspected the actual redesigned page
+(node `6017:561`) directly rather than assuming visual similarity meant
+no changes were needed.
+
+Pulled real `get_design_context` data across ~8 sections (hero, hero
+image + meta grid combined container, Process, Design System, Key UI
+Screens, Gallery, Prev/Next nav, footer) and found genuine, specific
+differences from what was built in earlier rounds:
+
+- **Texture band added** — the same hero-band pattern used on the
+  homepage appears between the hero and content on the case study page
+  too; this was missing entirely before.
+- **Meta grid restructured**: was one white/shadowed `.cs-card`
+  containing 4 items at 16px gap; Figma shows 4 *individually*
+  bordered boxes (`border: 1px solid #eee`, radius 12, **no background,
+  no shadow** — the page background shows through), each with a real
+  20×20 icon, at a tight **4px** gap, not 16px.
+  I don't have the real Cuida icon exports (same localhost-asset
+  constraint as previous icon rounds), so used hand-drawn
+  approximations for Overview/Problem/Goals/My Role — flagged for
+  swap-in if the real assets become available, consistent with how
+  every other icon gap in this project has been handled.
+- **Section headings were the wrong scale**: had been using
+  `.case-title` (20px) for Process/Design System/etc. headings; Figma
+  specifies the full `.section-heading` scale (40px) — the same size
+  used for headings like "A journey through products..." on the
+  homepage. Also, section eyebrow labels had been simplified to plain
+  text (`.cs-label`); Figma shows the *real* `.eyebrow-badge` pill
+  (with its shadow) is used here too, not a simplified version.
+- **Bullet lists now sit inside their own bordered box** (`.cs-box`,
+  border #eee, radius 12, no shadow) with **hairline dividers between
+  each row** instead of a plain gap — previously bullets just flowed
+  with gap spacing, no enclosing box or row dividers.
+- **Key UI Screens / Gallery grid gap**: was 16px, Figma specifies 4px.
+- **Challenges and Results/Impact sections removed entirely** — the
+  redesign doesn't include them. Confirmed by checking the full node
+  tree top to bottom: Hero → texture band → [hero image + meta grid] →
+  Process → Design System → Key UI Screens → UX Decisions → Gallery →
+  Prev/Next → footer. Nothing else exists between UX Decisions and
+  Gallery in the real file.
+- **Prev/Next navigation completely redesigned**: was a plain row with
+  a hairline top border and `.btn-dark`/`.btn-ghost` links; Figma shows
+  a floating pill (`rgba(254,254,254,.5)` background — the same
+  translucent surface as the site's own floating nav), with a solid
+  dark "Back to Portfolio" button centered between stacked
+  Previous/Next labels using real caret icons.
+- **Hero lede text reverted** to the original longer version for MPay
+  specifically ("...across mobile and web — built to make everyday
+  payments feel instant, trustworthy, and simple.") — the shortened
+  version from an earlier "reduce text" round doesn't match what's in
+  this Figma file. Followed Figma per its own explicit instruction to
+  do so on any conflict. Design System's intro paragraph, by contrast,
+  already matched the shortened text — content wasn't assumed
+  consistent across sections, checked each one individually.
+- **One false alarm caught and not acted on**: metadata's layer name
+  for the footer text read "© 2026 Maren Voss..." — but the actual
+  rendered text (confirmed via `get_design_context`, not the layer
+  name) is correctly "© 2026 Mazari Dahmani...". Layer names can be
+  stale; verified actual content before treating it as a bug.
+
+Applied identically to both `mpay.html` and `tatheer.html` (same
+template, each project's own existing content) — the Figma frame is a
+shared case-study template, not a page unique to one project. A second
+node (`6019:561`) sent later turned out to be a byte-for-byte duplicate
+of the first with identical content, confirmed via direct inspection
+rather than assumed — no additional changes were needed for it.
+
+Removed now-dead CSS (`.cs-grid-2`, `.cs-stack`, `.cs-stats-grid`,
+`.cs-stat`) left over from the sections that no longer exist.
+
+Verified in the live build on both pages: texture band present, 4 meta
+items each with the correct border/no-shadow treatment, 2 list boxes
+with row dividers, Challenges/Results confirmed absent, all 7 reveal
+sections still trigger, Prev/Next correctly cross-links pages, zero
+failed requests, zero console errors. Also re-confirmed the homepage
+was untouched (22 `.column-guide` children, zero failed requests) since
+this request was explicitly scoped to the case study pages only.
+
+## Divider/spacer rhythm fixed — was genuinely missing
+
+User was right, and it was a real gap, not a stylistic choice: the
+previous round had collapsed all 6 sections into one continuous
+`.column-guide` flow separated only by a 48px CSS gap. Figma's actual
+node data (already captured in this session) shows something different:
+**every** section is its own independently `pt-[89px]`-padded frame,
+and consecutive sections are separated by the exact same
+`[divider → 100px spacer → divider]` sequence the homepage already
+uses correctly — not a plain gap.
+
+Recounted the real sequence directly from the metadata already pulled
+this session (all 31 top-level children of the Figma frame, in y-order)
+rather than re-guessing: 6 content sections, each preceded/followed by
+this same divider-spacer-divider pattern, ending in one more
+divider+spacer before a final full-bleed divider, then the (unbordered)
+Prev/Next pill, then the footer directly with no divider between them.
+
+Restructured both `mpay.html` and `tatheer.html`: each of the 6
+sections (hero image + meta grid, Process, Design System, Key UI
+Screens, UX Decisions, Gallery) now gets its own `.section-shell` with
+`padding-top: 89px`, and the full 3-part divider/spacer sequence sits
+between each one — 5 internal sequences + 1 closing one = 11 dividers
+and 6 spacer-bands per page, all reusing the exact same
+`.divider-inline`/`.spacer-band`/`.full-bleed-divider` classes and
+100px height already established and verified on the homepage.
+
+Verified directly in the live build on both pages: `.column-guide`
+child sequence is exactly 23 elements in the expected
+section/divider/spacer/divider pattern; 11 dividers per page, each
+confirmed full-viewport-width (1280px, not just the 960px guide width —
+the same full-bleed check used throughout this project); spacer height
+exactly 100px; all 7 reveal sections still trigger correctly; zero
+failed requests, zero console errors on any of the three pages
+(including the homepage, confirmed untouched).
+
+## Bottom navigation rebuilt pixel-exact from a fresh MCP inspection
+
+Re-fetched this section directly via `get_design_context` per explicit
+request rather than relying on the earlier-session data (the original
+node ID had gone stale — the Figma desktop app's active selection had
+moved — so used the confirmed duplicate node `6019:756` instead, and
+verified the returned markup was byte-for-byte identical to what this
+project had already captured for the same component, confirming it was
+safe to treat as current).
+
+Comparing the fresh spec against the actual shipped CSS line by line
+turned up four real discrepancies — not stylistic choices, actual
+mismatches:
+
+- **An extra `gap: 16px` on the pill that Figma doesn't specify at
+  all.** The real layout relies purely on `justify-content:
+  space-between` with no gap — the gap I'd added was pushing the three
+  children farther apart than the source design.
+- **The Previous side is missing its exact 88px fixed width.** Figma
+  sets `w-[88px]` on that side only — the Next side has no width set at
+  all (content-hugging). This asymmetry is real in the source file, not
+  a mistake to "fix into" symmetry — replicated it exactly rather than
+  assuming both sides should match.
+- **Missing `line-height: 21px`** on the Previous/Next labels — was
+  unset, falling back to the browser default instead of the specified
+  value.
+- `width: 100%` on the pill changed to `flex: 1 0 0`, matching the
+  literal Figma property instead of an approximation that happened to
+  look similar.
+
+Verified every value directly against computed styles after the fix,
+not just visually: pill background, radius, padding, and
+`justify-content` all match; pill `gap` now computes to `normal` (no
+stray spacing); Previous side computes to exactly `88px` while Next
+measures ~84.6px (content-hugging, confirmed *not* forced to 88px);
+label line-height computes to exactly `21px`; link gap/font-size/
+line-height/color all match; icons are exactly 20×20; the "Back to
+Portfolio" button's background, padding, radius, and text color all
+match Figma's Button component spec exactly. Confirmed the fix applies
+identically on both `mpay.html` and `tatheer.html` since it lives in
+the shared stylesheet. Zero failed requests, zero console errors on any
+of the three pages.
+
+## Bottom navigation container width fixed — real bug, not cosmetic
+
+Real bug, confirmed against data already captured this session: the
+Navigation frame in Figma is `x=160, width=960` — the exact same
+960px content column every other section uses. `.cs-prevnext-wrap` had
+no width constraint at all, so as a direct child of `<main>` (full
+viewport, no max-width) it stretched edge-to-edge — conflated "not
+guide-bordered" (correct — Navigation has no visible `#eee` side
+border) with "not width-constrained" (wrong — those are independent
+properties in the source file).
+
+Fixed by adding the exact same width formula used by `.container-960`/
+`.hero-guide`/`.column-guide` elsewhere in this project
+(`min(var(--content-w), 100% - 32px)`, centered) directly to
+`.cs-prevnext-wrap`, keeping `display: flex` so the pill's existing
+`flex: 1 0 0` still fills the (now correctly 960px) container instead
+of the full viewport.
+
+Verified directly: wrap now measures exactly 960px wide, and its left/
+right edges are pixel-identical to `.column-guide`'s edges directly
+above it (both at x=160, right edge at x=1120) — confirmed via bounding
+box comparison, not eyeballing. The full-bleed divider immediately
+before the nav is unaffected and still correctly spans the full 1280px
+viewport (it's a separate element, outside the now-constrained wrap).
+Mobile responsiveness holds — wrap correctly narrows to match the
+viewport's own margin rules at small widths. Applies identically to
+both pages since it's a shared stylesheet rule. Zero failed requests,
+zero console errors.
+
+## Real Figma meta-grid icons swapped in
+
+Replaced the hand-drawn stroke-based approximations (flagged as
+placeholders in the case-study rebuild round) with the real assets
+provided: `Overview.svg`, `Problem.svg`, `Goals.svg`, `My_Role.svg` —
+all 20×20, flat-fill icons (`fill="#777A7E"`), used verbatim as
+`assets/case-study/icon-{overview,problem,goals,my-role}.svg`, no path
+data modified.
+
+Switched from inline hand-drawn `<svg>` markup to `<img>` tags pointing
+at these real files — since the fill color is baked into each SVG file
+itself (not relying on `currentColor`), the old `.cs-meta-icon { color:
+var(--ink-500) }` CSS was dead weight for `<img>` elements anyway;
+removed it rather than leaving an inert rule behind.
+
+Verified in the live build on both pages: all 4 icons load with zero
+failed requests, correctly mapped to their labels (Overview/Problem/
+Goals/My Role, in order), each exactly 20×20, and the existing 8px
+icon-to-title gap is unchanged. Since these are real vector SVGs loaded
+natively rather than rasterized, they're resolution-independent —
+crisp on Retina by construction, not something that needed separate
+handling. Full-page structure check still intact (23 `.column-guide`
+children, matching the divider/spacer rhythm fixed last round).
+
+## Texture band fixed — was rendering full-bleed instead of content-width
+
+Re-inspected the actual Figma node (`6019:578`, the confirmed duplicate
+of `6017:578`) fresh via `get_design_context`. It showed two things the
+shipped code was missing: `border-[#eee] border-l border-r` on the
+frame, and the frame itself is 960px wide (`x=160` in the original
+metadata) — not full-bleed.
+
+The bug: the texture band had been placed as a direct child of
+`<main>`, sandwiched between two `.full-bleed-divider`s but with no
+width constraint of its own — so it stretched to the full viewport
+instead of the 960px content column, and had no visible border at all.
+
+**Fixed by reusing, not recreating.** Rather than writing new CSS,
+wrapped the texture band in its own `.column-guide` instance — the
+exact same reusable container class (960px width, `#eee` left/right
+border, 4px inset) already used for every other content section on
+this page and for this identical element on the homepage. The
+`.texture-band`/`.texture-band-pattern` CSS itself (height, absolute
+positioning, `object-fit: cover`, 5% opacity) was already correct and
+untouched — confirmed identical to the homepage's version, same asset
+file (`assets/texture-hero-band.svg`), not a new pattern.
+
+Verified directly against the homepage's own rendering of this same
+element, not just against the Figma spec in isolation: both now report
+an identical 950px width at an identical x-position; the wrapping
+guide's border computes to `1px solid rgb(238,238,238)` (`#eee`) on
+both; pattern opacity computes to `0.05` on both; same `src` attribute
+on both. Divider count and sequence around the band are unchanged (3
+full-bleed dividers total, matching the structure fixed two rounds
+ago). All reveal sections still trigger on both pages, zero failed
+requests, zero console errors.
+
+## Real icons swapped in for Back to Top, Back to Portfolio, See my work
+
+Replaced the hand-built sprite icons with the three real Figma assets
+provided, used verbatim (no path edits):
+- **Back to Top** (footer, all three pages) → `icon-back-top.svg`
+  (single up-chevron), replacing the old double-chevron sprite icon.
+- **Back to Portfolio** (case study top link) → `icon-back-portfolio.svg`
+  (a real left-pointing caret). This also let me remove a hack from an
+  earlier round — the old icon was a diagonal arrow rotated 180° via
+  CSS to fake a "back" direction; the real asset already points the
+  correct way, so the rotation rule was deleted rather than left inert.
+- **See my work** (homepage hero) → `icon-see-work.svg`. Worth flagging:
+  the real asset is a straight down-arrow, not the diagonal
+  up-right "external link" arrow used before — a real visual/semantic
+  change, not a mistake. Used exactly as provided per the explicit
+  "use the attached SVG exactly, do not redraw" instruction; a down
+  arrow also reads naturally here since the button scrolls down the
+  page to the Work section.
+
+One trade-off worth being upfront about: these new assets have their
+fill color baked directly into the file (e.g. `#878787`), rather than
+using `currentColor` the way the old sprite icons did. That means the
+icon no longer shifts color together with the button text on hover —
+confirmed directly: button text goes from `rgb(135,135,135)` to
+`rgb(16,17,20)` on hover, while the icon stays fixed at its own
+`#878787`. At rest the two match exactly. This is the correct
+consequence of "use the exact SVG as provided, don't recreate it" —
+editing the fill to track `currentColor` would mean modifying the file,
+which the request explicitly said not to do.
+
+Verified in the live build across all three pages: all three icons load
+with zero failed requests, each renders at exactly 20×20, spacing to
+the button text is unchanged (no layout shift from the old sprite
+icons), and hover/typography on the buttons themselves is otherwise
+untouched.
+
 ## Known gap
 
 - Nav has a "Skills" link (`#skills`), but there is no Skills section

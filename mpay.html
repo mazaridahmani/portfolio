@@ -62,6 +62,8 @@
 <svg class="icon-sprite" aria-hidden="true">
   <symbol id="icon-arrow-up-right" viewBox="0 0 20 20"><path d="M6 14 14 6M8 6h6v6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/></symbol>
   <symbol id="icon-chevrons-up" viewBox="0 0 20 20"><path d="M5 12.5 10 8l5 4.5M5 7.5 10 3l5 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/></symbol>
+  <symbol id="icon-caret-left" viewBox="0 0 20 20"><path d="M12 15 7 10l5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/></symbol>
+  <symbol id="icon-caret-right" viewBox="0 0 20 20"><path d="M8 15l5-5-5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/></symbol>
 </svg>
 
 <main>
@@ -69,7 +71,7 @@
   <!-- No top nav on case study pages, by design — immersive, project-focused. -->
   <section class="hero-guide">
     <div class="cs-back-wrap" style="padding-left:24px;padding-right:24px;">
-      <a class="btn btn-ghost cs-back" href="index.html#work"><svg viewBox="0 0 20 20"><use href="#icon-arrow-up-right"/></svg>Back to Portfolio</a>
+      <a class="btn btn-ghost cs-back" href="index.html#work"><img src="assets/icon-back-portfolio.svg" width="20" height="20" alt="">Back to Portfolio</a>
     </div>
     <div class="hero-inner">
       <div class="tag-row">
@@ -81,69 +83,99 @@
       <div class="cs-hero-meta">
         <p class="exp-dates" style="margin:0;">2024 · Teletic</p>
       </div>
-      <p class="hero-lede">A secure P2P transfer and bill payment platform for Banque Al Baraka Algeria. Built to make everyday payments feel instant and trustworthy.</p>
+      <p class="hero-lede">A secure P2P money transfer and bill payment platform, designed end-to-end for Banque Al Baraka Algeria across mobile and web — built to make everyday payments feel instant, trustworthy, and simple.</p>
     </div>
   </section>
 
   <div class="full-bleed-divider"></div>
 
   <div class="column-guide">
-    <div class="section-shell" style="padding-top:48px;">
+    <div class="texture-band" aria-hidden="true">
+      <img class="texture-band-pattern" src="assets/texture-hero-band.svg" alt="">
+    </div>
+  </div>
+
+  <div class="full-bleed-divider"></div>
+
+  <div class="column-guide">
+    <div class="section-shell" style="padding-top:89px;">
 
       <div class="cs-media cs-media-hero reveal">
         <svg viewBox="0 0 40 40" fill="none"><path d="M20 4 34 34H6L20 4Z" stroke="currentColor" stroke-width="2"/></svg>
       </div>
 
-      <div class="cs-card reveal">
-        <span class="cs-label">Project Summary</span>
-        <div class="cs-grid-2">
-          <div class="cs-stack" style="gap:8px;">
-            <span class="cs-label" style="color:var(--ink-450);">Overview</span>
-            <p class="cs-text">One secure app for transfers and bill payments — replacing a fragmented mix of branch visits and legacy tools.</p>
-          </div>
-          <div class="cs-stack" style="gap:8px;">
-            <span class="cs-label" style="color:var(--ink-450);">Problem</span>
-            <p class="cs-text">Separate flows for transfers and bills, with inconsistent verification that eroded trust exactly when money moved.</p>
-          </div>
-          <div class="cs-stack" style="gap:8px;">
-            <span class="cs-label" style="color:var(--ink-450);">Goals</span>
-            <p class="cs-text">Faster transfers, one mental model for payments, and compliance that doesn't feel like paperwork.</p>
-          </div>
-          <div class="cs-stack" style="gap:8px;">
-            <span class="cs-label" style="color:var(--ink-450);">My Role</span>
-            <p class="cs-text">Lead Product Designer, end-to-end — partnering closely with the PM and CEO on compliance and timeline.</p>
-          </div>
+      <div class="cs-meta-grid reveal">
+        <div class="cs-box cs-meta-item">
+          <img class="cs-meta-icon" src="assets/case-study/icon-overview.svg" width="20" height="20" alt="">
+          <p class="cs-meta-label">Overview</p>
+          <p class="cs-meta-text">MPay unifies P2P transfers and everyday bill payments into a single, secure product for Banque Al Baraka Algeria's customers, replacing a fragmented set of in-branch and legacy-app workflows.</p>
+        </div>
+        <div class="cs-box cs-meta-item">
+          <img class="cs-meta-icon" src="assets/case-study/icon-problem.svg" width="20" height="20" alt="">
+          <p class="cs-meta-label">Problem</p>
+          <p class="cs-meta-text">Customers juggled separate flows — often separate apps — to send money versus pay bills, with inconsistent verification steps that eroded trust at exactly the moment money was changing hands.</p>
+        </div>
+        <div class="cs-box cs-meta-item">
+          <img class="cs-meta-icon" src="assets/case-study/icon-goals.svg" width="20" height="20" alt="">
+          <p class="cs-meta-label">Goals</p>
+          <p class="cs-meta-text">Cut the time to complete a transfer, unify transfers and bill payments under one mental model, and meet compliance requirements without the flow feeling like a form.</p>
+        </div>
+        <div class="cs-box cs-meta-item">
+          <img class="cs-meta-icon" src="assets/case-study/icon-my-role.svg" width="20" height="20" alt="">
+          <p class="cs-meta-label">My Role</p>
+          <p class="cs-meta-text">Lead Product Designer — end-to-end UX and UI, working closely with the Project Manager and CEO to keep the product aligned with compliance requirements and the launch timeline.</p>
         </div>
       </div>
 
-      <div class="cs-flow reveal">
-        <span class="cs-label">Process</span>
-        <h2 class="case-title">Starting from the moments people trust least.</h2>
-        <p class="cs-text">People didn't distrust the bank — they distrusted the moment of sending money. Process started there.</p>
-        <ul class="exp-bullets">
-          <li><p>14 customer interviews across two cities, focused on their last transfer.</p></li>
-          <li><p>Mapped the old multi-app journey to cut redundant steps.</p></li>
-          <li><p>Tested low-fi flows with branch staff before any visual design.</p></li>
-          <li><p>Weekly syncs with the PM and CEO to protect the timeline.</p></li>
-        </ul>
-      </div>
+    </div>
 
+    <div class="divider-inline"></div>
+    <div class="spacer-band"></div>
+    <div class="divider-inline"></div>
+
+    <div class="section-shell" style="padding-top:89px;">
       <div class="cs-flow reveal">
-        <span class="cs-label">Design System</span>
-        <h2 class="case-title">One token set, two surfaces.</h2>
-        <p class="cs-text">One token set for mobile and web — a single change updates every surface.</p>
-        <div class="cs-swatch-row">
-          <div class="cs-swatch"><div class="cs-swatch-chip" style="background:#0f6b4f"></div><span class="cs-label" style="letter-spacing:0.5px;">Success</span></div>
-          <div class="cs-swatch"><div class="cs-swatch-chip" style="background:#b3261e"></div><span class="cs-label" style="letter-spacing:0.5px;">Alert</span></div>
-          <div class="cs-swatch"><div class="cs-swatch-chip" style="background:#1b4b91"></div><span class="cs-label" style="letter-spacing:0.5px;">Primary</span></div>
-          <div class="cs-swatch"><div class="cs-swatch-chip" style="background:#171717"></div><span class="cs-label" style="letter-spacing:0.5px;">Ink</span></div>
-          <div class="cs-swatch"><div class="cs-swatch-chip" style="background:#f3f3f3;box-shadow:inset 0 0 0 1px #ebebeb"></div><span class="cs-label" style="letter-spacing:0.5px;">Surface</span></div>
+        <span class="eyebrow-badge">Process</span>
+        <h2 class="section-heading">Starting from the moments people trust least.</h2>
+        <p class="hero-lede">People didn't distrust the bank — they distrusted the moment of sending money. Process started there.</p>
+        <div class="cs-box cs-list-box" style="width:100%;">
+          <ul class="exp-bullets">
+            <li><p>14 customer interviews across two cities, focused on their last transfer.</p></li>
+            <li><p>Mapped the old multi-app journey to cut redundant steps.</p></li>
+            <li><p>Tested low-fi flows with branch staff before any visual design.</p></li>
+            <li><p>Weekly syncs with the PM and CEO to protect the timeline.</p></li>
+          </ul>
         </div>
       </div>
+    </div>
 
+    <div class="divider-inline"></div>
+    <div class="spacer-band"></div>
+    <div class="divider-inline"></div>
+
+    <div class="section-shell" style="padding-top:89px;">
       <div class="cs-flow reveal">
-        <span class="cs-label">Key UI Screens</span>
-        <h2 class="case-title">The four screens that carry the whole flow.</h2>
+        <span class="eyebrow-badge">Design System</span>
+        <h2 class="section-heading">One token set, two surfaces.</h2>
+        <p class="hero-lede">One token set for mobile and web — a single change updates every surface.</p>
+        <div class="cs-box cs-swatch-row">
+          <div class="cs-swatch"><div class="cs-swatch-chip" style="background:#0f6b4f"></div><span class="cs-meta-label" style="font-size:12px;line-height:21px;letter-spacing:0.5px;text-transform:uppercase;">Success</span></div>
+          <div class="cs-swatch"><div class="cs-swatch-chip" style="background:#b3261e"></div><span class="cs-meta-label" style="font-size:12px;line-height:21px;letter-spacing:0.5px;text-transform:uppercase;">Alert</span></div>
+          <div class="cs-swatch"><div class="cs-swatch-chip" style="background:#1b4b91"></div><span class="cs-meta-label" style="font-size:12px;line-height:21px;letter-spacing:0.5px;text-transform:uppercase;">Primary</span></div>
+          <div class="cs-swatch"><div class="cs-swatch-chip" style="background:#171717"></div><span class="cs-meta-label" style="font-size:12px;line-height:21px;letter-spacing:0.5px;text-transform:uppercase;">Ink</span></div>
+          <div class="cs-swatch"><div class="cs-swatch-chip" style="background:#f3f3f3;box-shadow:inset 0 0 0 1px #ebebeb"></div><span class="cs-meta-label" style="font-size:12px;line-height:21px;letter-spacing:0.5px;text-transform:uppercase;">Surface</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider-inline"></div>
+    <div class="spacer-band"></div>
+    <div class="divider-inline"></div>
+
+    <div class="section-shell" style="padding-top:89px;">
+      <div class="cs-flow reveal">
+        <span class="eyebrow-badge">Key UI Screens</span>
+        <h2 class="section-heading">The four screens that carry the whole flow.</h2>
         <div class="cs-screens-grid">
           <div class="cs-screen"><svg viewBox="0 0 40 40" fill="none"><rect x="10" y="6" width="20" height="28" rx="3" stroke="currentColor" stroke-width="2"/><path d="M16 14h8M16 20h8M16 26h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
           <div class="cs-screen"><svg viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="14" stroke="currentColor" stroke-width="2"/><path d="M14 20h12M20 14v12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
@@ -151,55 +183,40 @@
           <div class="cs-screen"><svg viewBox="0 0 40 40" fill="none"><path d="M8 30V16M18 30V10M28 30v-8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></div>
         </div>
       </div>
+    </div>
 
+    <div class="divider-inline"></div>
+    <div class="spacer-band"></div>
+    <div class="divider-inline"></div>
+
+    <div class="section-shell" style="padding-top:89px;">
       <div class="cs-flow reveal">
-        <span class="cs-label">UX Decisions</span>
-        <h2 class="case-title">A few decisions that mattered more than they looked.</h2>
-        <ul class="exp-bullets">
-          <li><p>Progressive disclosure replaces a five-step verification wall.</p></li>
-          <li><p>One consistent card state for pending, cleared, and failed.</p></li>
-          <li><p>Bills and transfers share a single "recipient" pattern.</p></li>
-          <li><p>Press-and-hold confirms sends — no extra screen needed.</p></li>
-        </ul>
-      </div>
-
-      <div class="cs-flow reveal">
-        <span class="cs-label">Challenges</span>
-        <h2 class="case-title">Designing inside a bank's compliance constraints.</h2>
-        <p class="cs-text">Every money-touching screen needed compliance sign-off — some steps couldn't be cut. So required steps were explained briefly instead of hidden, keeping both compliance and usability intact.</p>
-      </div>
-
-      <div class="cs-card reveal">
-        <span class="cs-label">Results / Impact</span>
-        <h2 class="case-title">What changed after launch.</h2>
-        <div class="cs-stats-grid">
-          <div class="cs-stat"><span class="section-heading">2.1×</span><span class="proof-views">faster average transfer completion time</span></div>
-          <div class="cs-stat"><span class="section-heading">41%</span><span class="proof-views">more customers paying bills in-app vs. in-branch</span></div>
-          <div class="cs-stat"><span class="section-heading">4.6★</span><span class="proof-views">average app store rating post-launch</span></div>
+        <span class="eyebrow-badge">UX Decisions</span>
+        <h2 class="section-heading">A few decisions that mattered more than they looked.</h2>
+        <div class="cs-box cs-list-box" style="width:100%;">
+          <ul class="exp-bullets">
+            <li><p>Progressive disclosure replaces a five-step verification wall.</p></li>
+            <li><p>One consistent card state for pending, cleared, and failed.</p></li>
+            <li><p>Bills and transfers share a single "recipient" pattern.</p></li>
+            <li><p>Press-and-hold confirms sends — no extra screen needed.</p></li>
+          </ul>
         </div>
       </div>
+    </div>
 
+    <div class="divider-inline"></div>
+    <div class="spacer-band"></div>
+    <div class="divider-inline"></div>
+
+    <div class="section-shell" style="padding-top:89px;">
       <div class="cs-flow reveal">
-        <span class="cs-label">Gallery</span>
-        <h2 class="case-title">A closer look.</h2>
+        <span class="eyebrow-badge">Gallery</span>
+        <h2 class="section-heading">A closer look.</h2>
         <div class="cs-gallery-grid">
           <div class="cs-gallery-item"><svg viewBox="0 0 40 40" fill="none"><path d="M20 4 34 34H6L20 4Z" stroke="currentColor" stroke-width="1.5"/></svg></div>
           <div class="cs-gallery-item"><svg viewBox="0 0 40 40" fill="none"><rect x="6" y="6" width="28" height="28" rx="6" stroke="currentColor" stroke-width="1.5"/></svg></div>
         </div>
       </div>
-
-      <nav class="cs-prevnext" aria-label="Case study navigation">
-        <a class="cs-prevnext-link" href="tatheer.html">
-          <span class="cs-label">Previous</span>
-          <span class="exp-role" style="margin:0;">Tatheer</span>
-        </a>
-        <a class="btn btn-dark" href="index.html#work">Back to Portfolio</a>
-        <a class="cs-prevnext-link align-end" href="tatheer.html">
-          <span class="cs-label">Next</span>
-          <span class="exp-role" style="margin:0;">Tatheer</span>
-        </a>
-      </nav>
-
     </div>
 
     <div class="divider-inline"></div>
@@ -208,12 +225,26 @@
 
   <div class="full-bleed-divider"></div>
 
+  <div class="cs-prevnext-wrap">
+    <nav class="cs-prevnext-pill" aria-label="Case study navigation">
+      <div class="cs-prevnext-side">
+        <span class="cs-prevnext-eyebrow">Previous</span>
+        <a class="cs-prevnext-title-link" href="tatheer.html"><svg viewBox="0 0 20 20"><use href="#icon-caret-left"/></svg>Tatheer</a>
+      </div>
+      <a class="btn btn-dark" href="index.html#work">Back to Portfolio</a>
+      <div class="cs-prevnext-side align-end">
+        <span class="cs-prevnext-eyebrow">Next</span>
+        <a class="cs-prevnext-title-link" href="tatheer.html">Tatheer<svg viewBox="0 0 20 20"><use href="#icon-caret-right"/></svg></a>
+      </div>
+    </nav>
+  </div>
+
   <footer class="container-960">
     <div class="site-footer">
       <div>
         <p class="footer-copy">© 2026 Mazari Dahmani. Designed &amp; built with obsessive attention to detail.</p>
       </div>
-      <a class="btn btn-ghost footer-top-btn" href="#top">Back to Top <svg><use href="#icon-chevrons-up"/></svg></a>
+      <a class="btn btn-ghost footer-top-btn" href="#top">Back to Top <img src="assets/icon-back-top.svg" width="20" height="20" alt=""></a>
     </div>
   </footer>
 

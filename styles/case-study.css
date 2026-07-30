@@ -29,7 +29,8 @@ body.cs-body { opacity: 0; animation: cs-page-in 450ms ease-out forwards; }
 /* ---------- Back link — reuses .btn.btn-ghost exactly, just adds the
    page-specific top spacing and a reversed arrow ---------- */
 .cs-back-wrap { padding: 40px 0 0; }
-.cs-back svg { transform: rotate(180deg); }
+/* Back link now uses a real left-pointing icon asset (see below), no
+   rotation transform needed. */
 
 /* ---------- Hero meta line (year · company) — reuses .exp-dates'
    exact text properties via that same class in the markup; this just
@@ -70,13 +71,11 @@ body.cs-body { opacity: 0; animation: cs-page-in 450ms ease-out forwards; }
 .cs-flow { display: flex; flex-direction: column; gap: 24px; }
 
 /* ---------- Layout grids (structure only) ---------- */
-.cs-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 32px 24px; }
-.cs-stack { display: flex; flex-direction: column; gap: 24px; }
 
 /* ---------- Hero / gallery media — reuses .case-figure's exact
    surface treatment (#f3f3f3, centered icon, ink-400). Flows directly
    on the page — no outer card/padding wrapping it. */
-.cs-media { background: #f3f3f3; border-radius: var(--r-lg); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.cs-media { background: var(--surface-media); border-radius: var(--r-lg); display: flex; align-items: center; justify-content: center; overflow: hidden; }
 .cs-media-hero { aspect-ratio: 16/9; }
 .cs-media svg { width: 22%; height: 22%; color: var(--ink-400); }
 
@@ -89,9 +88,9 @@ body.cs-body { opacity: 0; animation: cs-page-in 450ms ease-out forwards; }
    already established on the homepage (4px lift + shadow-card-hover).
    These are image placeholders, not content cards — they flow inside
    a plain section, not wrapped in an outer bordered container. */
-.cs-screens-grid, .cs-gallery-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.cs-screens-grid, .cs-gallery-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; }
 .cs-screen, .cs-gallery-item {
-  background: #f3f3f3;
+  background: var(--surface-media);
   border-radius: var(--r-lg);
   aspect-ratio: 4/3;
   display: flex;
@@ -103,20 +102,82 @@ body.cs-body { opacity: 0; animation: cs-page-in 450ms ease-out forwards; }
 .cs-screen:hover, .cs-gallery-item:hover { transform: translateY(-4px); box-shadow: var(--shadow-card-hover); }
 .cs-screen:hover svg, .cs-gallery-item:hover svg { transform: scale(1.06); }
 
-/* ---------- Results stat — big number reuses .section-heading's exact
-   properties (40px/48 Geist 500), caption reuses .proof-views' exact
-   properties (16px Figtree 500) ---------- */
-.cs-stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-.cs-stat { display: flex; flex-direction: column; gap: 8px; }
-
 /* ---------- Previous / Next — plain row, hairline top border only ---------- */
-.cs-prevnext { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; padding-top: 40px; border-top: 1px solid var(--line-tag); }
-.cs-prevnext-link { display: flex; flex-direction: column; gap: 4px; transition: opacity 250ms ease-out; }
-.cs-prevnext-link:hover { opacity: 0.6; }
-.cs-prevnext-link.align-end { text-align: right; align-items: flex-end; }
+/* ---------- Plain bordered box (no background, no shadow) — the
+   Figma redesign's replacement for the old white/shadowed .cs-card,
+   used for meta items, bullet lists, and the design-system swatches. ---------- */
+.cs-box {
+  border: 1px solid var(--line-guide);
+  border-radius: var(--r-md);
+  padding: 24px;
+}
+
+/* ---------- Project summary meta grid — 2x2, tight 4px gap, each
+   cell its own bordered box with a real icon + label + text ---------- */
+.cs-meta-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; }
+.cs-meta-item { display: flex; flex-direction: column; gap: 8px; }
+.cs-meta-icon { display: block; width: 20px; height: 20px; flex-shrink: 0; }
+.cs-meta-label { font-family: var(--font-figtree); font-weight: 500; font-size: 16px; line-height: 32px; color: var(--ink-600); margin: 0; }
+.cs-meta-text { font-family: var(--font-figtree); font-weight: 500; font-size: 16px; line-height: 24px; color: var(--ink-700); margin: 0; max-width: 720px; }
+
+/* Bullet lists inside a .cs-box get hairline dividers between rows
+   instead of a plain gap */
+.cs-list-box .exp-bullets { gap: 0; }
+.cs-list-box .exp-bullets li { padding: 8px 0; border-bottom: 1px solid var(--line-guide); }
+.cs-list-box .exp-bullets li:first-child { padding-top: 0; }
+.cs-list-box .exp-bullets li:last-child { padding-bottom: 0; border-bottom: none; }
+
+/* ---------- Previous / Next — redesigned as a floating pill,
+   matching the same rgba(254,254,254,.5) surface as the site nav ---------- */
+.cs-prevnext-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 40px 0;
+  width: min(var(--content-w), 100% - 32px);
+  margin-inline: auto;
+}
+.cs-prevnext-pill {
+  background: rgba(254, 254, 254, 0.5);
+  border-radius: var(--r-md);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  flex: 1 0 0;
+  min-width: 0;
+}
+.cs-prevnext-side { display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; }
+/* Figma gives only the Previous side a fixed 88px width — the Next
+   side is content-hugging (no width set on that node). This asymmetry
+   is real in the source file, not an oversight. */
+.cs-prevnext-side:first-child { width: 88px; align-items: flex-start; }
+.cs-prevnext-side.align-end { align-items: flex-end; text-align: right; }
+.cs-prevnext-eyebrow {
+  font-family: var(--font-figtree);
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 21px;
+  letter-spacing: 1.18px;
+  text-transform: uppercase;
+  color: var(--ink-700);
+}
+.cs-prevnext-title-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-inter);
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--ink-850);
+  transition: opacity 250ms ease-out;
+}
+.cs-prevnext-side.align-end .cs-prevnext-title-link { justify-content: flex-end; }
+.cs-prevnext-title-link:hover { opacity: 0.7; }
+.cs-prevnext-title-link svg { width: 20px; height: 20px; flex-shrink: 0; }
 
 @media (max-width: 720px) {
-  .cs-grid-2, .cs-screens-grid, .cs-gallery-grid, .cs-stats-grid { grid-template-columns: 1fr; }
+  .cs-screens-grid, .cs-gallery-grid, .cs-meta-grid { grid-template-columns: 1fr; }
   .cs-card { padding: 32px 24px; }
-  .cs-prevnext-link.align-end { text-align: left; align-items: flex-start; }
+  .cs-prevnext-side.align-end { text-align: left; align-items: flex-start; }
 }

@@ -53,6 +53,35 @@
   /* layout */
   --content-w: 960px;
   --guide-inset: 4px;
+
+  /* additional surface/status colors, consolidated from what were
+     previously repeated literals scattered across the stylesheet */
+  --white: #ffffff;
+  --surface-media: #f3f3f3;     /* neutral fill for image/screenshot placeholders */
+  --color-success: #4caf7d;
+  --color-error: #e0685f;
+
+  /* Spacing scale — formalizes the 4px-based progression already in
+     use throughout the site (extracted directly from the existing
+     rules, not invented) so new work has named steps to reach for
+     instead of ad-hoc pixel values. A few values intentionally sit
+     outside this scale because they're exact Figma-sourced specs
+     (89px section top-padding, 7px/13px/14px button and tag padding,
+     etc. — see FIGMA_QA.md) and are deliberately left as literals at
+     their point of use rather than forced into the scale, since doing
+     so would change the site's pixel fidelity to the source design. */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-14: 56px;
+  --space-16: 64px;
+  --space-20: 80px;
 }
 
 * { box-sizing: border-box; }
@@ -76,6 +105,14 @@ p { margin: 0; }
 :focus-visible {
   outline: 2px solid var(--ink-850);
   outline-offset: 2px;
+}
+
+/* The dark contact panel needs its own focus-ring color — the default
+   near-black outline above is nearly invisible against the panel's
+   own near-black background (#171717 outline on #1b1d21 background).
+   Real accessibility gap, not a stylistic choice. */
+.contact-panel :focus-visible {
+  outline-color: var(--contact-fg);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -185,8 +222,16 @@ p { margin: 0; }
   padding: 14px 24px;
   transition: background-color 250ms ease-out, color 250ms ease-out, border-color 250ms ease-out, transform 250ms ease-out, box-shadow 250ms ease-out;
 }
+.btn:active { opacity: 0.85; }
+.btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+  pointer-events: none;
+  transform: none !important;
+  box-shadow: none !important;
+}
 
-.btn-dark { background: var(--ink-850); color: #fff; }
+.btn-dark { background: var(--ink-850); color: var(--white); }
 .btn-dark:hover { background: var(--ink-900); transform: translateY(-4px); box-shadow: var(--shadow-card-hover); }
 .btn-ghost { background: transparent; color: var(--ink-450); }
 .btn-ghost:hover { background: var(--line-guide); color: var(--ink-900); transform: translateY(-4px); box-shadow: var(--shadow-card-hover); }
@@ -199,7 +244,6 @@ p { margin: 0; }
 }
 .btn-light { background: var(--card-bg); color: var(--contact-bg); width: 100%; }
 .btn-light:hover { background: var(--line-guide); transform: translateY(-4px); box-shadow: var(--shadow-card-hover); }
-.btn-light:disabled { opacity: 0.6; cursor: default; transform: none; box-shadow: none; }
 .form-status {
   font-family: var(--font-inter);
   font-weight: 500;
@@ -208,13 +252,13 @@ p { margin: 0; }
   margin: 0;
   min-height: 20px;
 }
-.form-status.is-success { color: #4caf7d; }
-.form-status.is-error { color: #e0685f; }
+.form-status.is-success { color: var(--color-success); }
+.form-status.is-error { color: var(--color-error); }
 
 .btn svg { width: 20px; height: 20px; flex-shrink: 0; }
 .tag-row { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
 .tag {
-  background: #fff;
+  background: var(--white);
   border: 1px solid var(--line-tag);
   border-radius: var(--r-sm);
   padding: 7px 13px;
@@ -271,8 +315,8 @@ p { margin: 0; }
   display: block;
   image-rendering: -webkit-optimize-contrast;
 }
-.nav-cta { background: var(--ink-850); color: #fff; padding: 14px 24px; }
-.nav-cta:hover { background: var(--ink-900); color: #fff; transform: translateY(-2px); box-shadow: var(--shadow-card-hover); }
+.nav-cta { background: var(--ink-850); color: var(--white); padding: 14px 24px; }
+.nav-cta:hover { background: var(--ink-900); color: var(--white); transform: translateY(-2px); box-shadow: var(--shadow-card-hover); }
 
 .nav-toggle { display: none; }
 
@@ -294,7 +338,7 @@ p { margin: 0; }
   display: block;
   object-fit: cover;
   flex-shrink: 0;
-  border: 1px solid #FFFFFF;
+  border: 1px solid var(--white);
 }
 
 .eyebrow-name {
@@ -474,7 +518,7 @@ p { margin: 0; }
 }
 .case-figure {
   height: 248px;
-  background: #f3f3f3;
+  background: var(--surface-media);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -617,6 +661,16 @@ p { margin: 0; }
 }
 .field textarea { resize: vertical; min-height: 88px; font-family: var(--font-inter); }
 .field input::placeholder, .field textarea::placeholder { color: var(--ink-700); }
+.field input:focus-visible, .field textarea:focus-visible { outline-color: var(--contact-fg); }
+.field.has-error input, .field.has-error textarea { border-color: var(--color-error); }
+.field-error {
+  display: none;
+  font-family: var(--font-inter);
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--color-error);
+}
+.field.has-error .field-error { display: block; }
 
 /* ---------- Footer ---------- */
 .site-footer {

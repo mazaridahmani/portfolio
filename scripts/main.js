@@ -61,6 +61,15 @@
   }
 
   if (form) {
+    // Clear a field's error state in real time as soon as it becomes
+    // valid again, rather than waiting for the next submit attempt.
+    form.querySelectorAll('input, textarea').forEach((el) => {
+      el.addEventListener('input', () => {
+        const field = el.closest('.field');
+        if (field && el.validity.valid) field.classList.remove('has-error');
+      });
+    });
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
@@ -68,7 +77,16 @@
       // browser's native validation UI, so it's re-triggered explicitly —
       // reportValidity() both blocks submission on invalid fields AND shows
       // the same built-in validation bubbles the browser would show anyway.
-      if (!form.checkValidity()) {
+      // Each invalid field also gets a visual .has-error state (red border
+      // + inline message) for a more polished, non-native-only look.
+      let allValid = true;
+      form.querySelectorAll('input, textarea').forEach((el) => {
+        const field = el.closest('.field');
+        if (!field) return;
+        field.classList.toggle('has-error', !el.validity.valid);
+        if (!el.validity.valid) allValid = false;
+      });
+      if (!allValid) {
         form.reportValidity();
         return;
       }
