@@ -58,7 +58,25 @@
       document.body.classList.remove('cursor-hidden');
     }
   }
-  function onMouseLeaveDoc() { document.body.classList.add('cursor-hidden'); }
+  function onMouseLeaveDoc() {
+    document.body.classList.add('cursor-hidden');
+    // A real browser quirk, not specific to this cursor system: when
+    // the pointer moves from over a hover-reactive element directly
+    // out of the window (to browser chrome, another app, etc.), the
+    // final mouseout needed to clear that element's :hover state can
+    // fail to fire — :hover is cleared by movement targeting away from
+    // the element, which never happens if the cursor just leaves the
+    // rendering surface. Confirmed directly: `element.matches(':hover')`
+    // still returns true after a genuine document-level mouseleave.
+    // Fixed with the standard technique for this — briefly making the
+    // whole page unhoverable forces the browser to invalidate every
+    // :hover match immediately, then normal interaction resumes next
+    // frame once a real mouse position is known again.
+    document.body.style.pointerEvents = 'none';
+    requestAnimationFrame(() => {
+      document.body.style.pointerEvents = '';
+    });
+  }
   function onMouseEnterDoc() { if (hasPositioned) document.body.classList.remove('cursor-hidden'); }
   function onMouseOver(e) {
     if (e.target.closest && e.target.closest(HOVER_SELECTOR)) ring.classList.add('is-hovering');

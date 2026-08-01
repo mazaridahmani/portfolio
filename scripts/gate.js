@@ -27,13 +27,15 @@
 
   function lockPage() {
     document.body.classList.add('cs-gate-locked');
-    // Fully suspend the custom cursor — not just hide it — while the
-    // modal is open: cancels its rAF loop and removes its listeners
-    // outright, rather than letting them keep running underneath a
-    // visual mask. Guarded because cursor.js only exposes this API on
-    // devices where it actually initialized (a real mouse, no reduced
-    // motion); harmless no-op everywhere else.
-    if (window.portfolioCursor) window.portfolioCursor.suspend();
+    // The custom cursor is intentionally left running, unchanged —
+    // there is exactly one cursor implementation site-wide, and the
+    // dialog uses it exactly like every other part of the portfolio.
+    // Its existing HOVER_SELECTOR already includes generic `button,
+    // input`, so hovering the password field or Continue button
+    // triggers the same hover-enlarge behavior automatically, with no
+    // dialog-specific cursor code needed. Background content still
+    // can't be interacted with — that's handled entirely by `inert`
+    // below, independent of the cursor.
     // The real mechanism: `inert` is a native DOM attribute, not a CSS
     // trick — it makes an element and its entire subtree unclickable,
     // unhoverable, unfocusable, and invisible to the accessibility
@@ -60,7 +62,6 @@
     Array.from(document.body.children).forEach((el) => {
       if (el !== gate) el.removeAttribute('inert');
     });
-    if (window.portfolioCursor) window.portfolioCursor.resume();
     document.removeEventListener('keydown', onKeydown);
     if (skipAnimation) {
       gate.setAttribute('hidden', '');

@@ -7,30 +7,23 @@
    reused from the site's own tokens; nothing new was introduced.
    ========================================================================== */
 
-.cs-gate {
-  position: fixed;
-  inset: 0;
-  z-index: 10000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-}
-/* The class above sets its own display, which — per normal CSS cascade
-   rules — outranks the [hidden] attribute's UA-stylesheet default of
-   display:none, regardless of hidden being an attribute rather than a
-   class. Without this, the gate stays interaction-blocking even after
-   JS marks it hidden. Real bug, caught via testing, not theoretical. */
+/* Purely structural — holds the [hidden] toggle and is-open/is-closing
+   state classes JS uses, nothing else. No position, z-index, or
+   display of its own: the backdrop and dialog below each handle their
+   own fixed positioning directly, so there's exactly one flat layer
+   between the case study and the dialog, not an extra wrapping
+   stacking context. */
 .cs-gate[hidden] {
   display: none;
 }
 
 .cs-gate-backdrop {
-  position: absolute;
+  position: fixed;
   inset: 0;
-  background: rgba(16, 17, 20, 0.35);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  z-index: 10000;
+  background: rgba(16, 17, 20, 0.45);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   opacity: 0;
   /* Only opacity transitions — the blur radius itself stays constant
      at all times. Animating backdrop-filter directly is what caused
@@ -41,12 +34,23 @@
      already fully blurred underneath is the standard, artifact-free
      approach. */
   transition: opacity 350ms ease-out;
+  /* Gives the expensive blur its own stable compositor layer, so it
+     doesn't get re-flattened/re-composited on every frame the cursor
+     (or anything else) updates nearby — backdrop-filter is one of the
+     most GPU-expensive CSS effects, and isolating it like this is what
+     keeps other animations on the page, like the cursor's own easing
+     loop, running at full speed alongside it. */
+  will-change: opacity;
 }
 .cs-gate.is-open .cs-gate-backdrop { opacity: 1; }
+.cs-gate.is-closing .cs-gate-backdrop { opacity: 0; }
 
 .cs-gate-dialog {
-  position: relative;
-  width: 100%;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 10000;
+  width: calc(100% - 48px);
   max-width: 420px;
   background: var(--card-bg);
   border-radius: var(--r-lg);
@@ -58,15 +62,11 @@
   text-align: center;
   gap: 16px;
   opacity: 0;
-  transform: scale(0.96) translateY(8px);
+  transform: translate(-50%, -50%) scale(0.96) translateY(8px);
   transition: opacity 350ms cubic-bezier(0.16, 1, 0.3, 1), transform 350ms cubic-bezier(0.16, 1, 0.3, 1);
 }
-.cs-gate.is-open .cs-gate-dialog { opacity: 1; transform: scale(1) translateY(0); }
-
-/* Closing state — smoothly fades everything out on success rather than
-   snapping away */
-.cs-gate.is-closing .cs-gate-backdrop { opacity: 0; }
-.cs-gate.is-closing .cs-gate-dialog { opacity: 0; transform: scale(0.98) translateY(-4px); }
+.cs-gate.is-open .cs-gate-dialog { opacity: 1; transform: translate(-50%, -50%) scale(1) translateY(0); }
+.cs-gate.is-closing .cs-gate-dialog { opacity: 0; transform: translate(-50%, -50%) scale(0.98) translateY(-4px); }
 
 .cs-gate-icon {
   width: 44px;
@@ -156,16 +156,15 @@
   margin-top: 2px;
 }
 
-.cs-gate-submit { width: 100%; margin-top: 4px; cursor: pointer; }
-.cs-gate-submit:disabled { cursor: default; }
+.cs-gate-submit { width: 100%; margin-top: 4px; }
 
 /* Shake feedback on an incorrect attempt — small amplitude, quick, a
    handful of oscillations rather than a cartoonish wide shake */
 @keyframes cs-gate-shake {
-  10%, 90% { transform: translateX(-1px); }
-  20%, 80% { transform: translateX(2px); }
-  30%, 50%, 70% { transform: translateX(-4px); }
-  40%, 60% { transform: translateX(4px); }
+  10%, 90% { transform: translate(-50%, -50%) translateX(-1px); }
+  20%, 80% { transform: translate(-50%, -50%) translateX(2px); }
+  30%, 50%, 70% { transform: translate(-50%, -50%) translateX(-4px); }
+  40%, 60% { transform: translate(-50%, -50%) translateX(4px); }
 }
 .cs-gate-dialog.is-shaking { animation: cs-gate-shake 420ms ease-in-out; }
 
@@ -192,16 +191,6 @@ body.cs-gate-locked > *:not(.cs-gate) {
   color: var(--ink-450);
   transition: background-color 220ms ease-out, color 220ms ease-out, border-color 220ms ease-out;
 }
-/* The site-wide custom-cursor rule sets cursor:none on every button
-   (needed so the custom cursor dot/ring can take over elsewhere); the
-   gate is hidden while itself is open regardless, so its own buttons
-   need their real pointer cursor back — this specifically outranks
-   that rule rather than fighting it via !important. */
-body.has-custom-cursor .cs-gate-close,
-body.has-custom-cursor .cs-gate-toggle,
-body.has-custom-cursor .cs-gate-submit {
-  cursor: pointer;
-}
 .cs-gate-close svg { width: 16px; height: 16px; }
 .cs-gate-close:hover,
 .cs-gate-close:focus-visible {
@@ -223,7 +212,6 @@ body.has-custom-cursor .cs-gate-submit {
   align-items: center;
   justify-content: center;
   color: var(--ink-450);
-  cursor: pointer;
   transition: color 220ms ease-out, background-color 220ms ease-out;
 }
 .cs-gate-toggle svg { width: 18px; height: 18px; }
@@ -235,7 +223,8 @@ body.has-custom-cursor .cs-gate-submit {
 .cs-gate-input { padding-right: 44px; }
 
 @media (prefers-reduced-motion: reduce) {
-  .cs-gate-backdrop, .cs-gate-dialog { transition: opacity 150ms linear !important; transform: none !important; }
+  .cs-gate-backdrop { transition: opacity 150ms linear !important; }
+  .cs-gate-dialog { transition: opacity 150ms linear !important; transform: translate(-50%, -50%) !important; }
   .cs-gate-dialog.is-shaking { animation: none; }
 }
 

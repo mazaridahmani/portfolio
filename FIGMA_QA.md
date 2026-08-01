@@ -2856,6 +2856,196 @@ Verified all three pages still load clean after this addition. No
 other code changed this round, since the exhaustive check found
 nothing left to fix on the page's own side.
 
+## Dialog cursor overridden to plain default throughout
+
+Straightforward CSS scoping change, no investigation needed this
+round. Overrode `cursor` to `default` on the dialog and every
+interactive element inside it — the password input, close button,
+toggle button, and Continue button — replacing the semantic text/
+pointer cursors that were there before. Scoped with just enough
+specificity (`body.has-custom-cursor .cs-gate-dialog input`, etc. — one
+more class in the chain than either of the two competing rules) to
+reliably win without needing `!important`.
+
+Verified directly: computed `cursor` is `default` on the dialog itself
+and all four interactive elements inside it, on both case study pages.
+Confirmed background content is completely unaffected (still `auto`)
+since the override is scoped specifically to `.cs-gate-dialog`
+descendants. Re-ran the existing gate test suite afterward — focus
+trap, wrong-password handling, and successful unlock all still work
+exactly as before. Zero failed requests, zero console errors on any
+of the three pages.
+
+## Dialog now uses the single, unified cursor system — no dialog-specific cursor code
+
+Direction change from every previous round on this topic: rather than
+disabling or overriding the cursor for the dialog, it now runs
+completely unchanged, everywhere, with zero special-casing. Removed
+`suspend()`/`resume()` calls from the gate entirely — the cursor's
+`requestAnimationFrame` loop and listeners just keep running exactly
+as they do on every other page. Removed every gate-specific cursor CSS
+override added across the last several rounds: the `cursor: default`
+block, the per-button `cursor: pointer` declarations, and the
+background `cursor: auto` restoration — none of it is needed anymore,
+since the gate's buttons and input now simply inherit the exact same
+global rules (`cursor: none` on buttons/links, `cursor: text` on
+inputs) as every other interactive element on the site. The existing
+`HOVER_SELECTOR` in `cursor.js` already included generic `button,
+input` — meaning the Continue button and password field were already
+covered by the shared hover-enlarge logic without writing anything new.
+
+One real fix needed to make this actually visible: the cursor's
+z-index (9999) sat *below* the gate's (10000), meaning even with the
+cursor active, it would have rendered underneath the opaque dialog
+card — invisible while hovering dialog content, even though
+functioning correctly underneath. Raised the cursor to `10001`, above
+the gate, so it now visibly renders on top of the dialog exactly as it
+does over any other part of the page.
+
+Background content is still fully protected — that was always handled
+by `inert`, entirely independent of the cursor's suspend state, so
+removing the suspend/resume calls doesn't reopen any interaction risk.
+
+Verified in the live build: cursor element confirmed present in the
+DOM while the gate is open; computed z-index confirmed `10001` vs. the
+gate's `10000`; moved the mouse to the Continue button's exact center
+and confirmed the cursor dot tracks to that precise coordinate;
+confirmed the ring's `is-hovering` class triggers on both the Continue
+button and the password input — the same shared logic used everywhere
+else, not dialog-specific code; confirmed `main` is still `inert`
+throughout, unaffected by any of this. Re-ran the complete existing
+test suite: focus trap, wrong-password handling, successful unlock
+with `inert` correctly clearing and a real click succeeding afterward,
+and the close button still navigating away correctly. Reproduced the
+hover-enlarge behavior independently on `tatheer.html`. Zero failed
+requests, zero console errors on any of the three pages.
+
+## Overlay structure flattened, cursor performance addressed at the root cause
+
+**Cursor speed**: confirmed once more that `cursor.js`'s logic (easing
+constant, tick loop, listeners) is byte-identical everywhere — there's
+no dialog-specific code path to have diverged. The "slower/heavier"
+feel is a real, well-documented characteristic of `backdrop-filter:
+blur(20px)`: it's one of the most GPU-expensive CSS effects, and a
+full-viewport instance of it competes for the same compositor budget
+as the cursor's own animation loop, which can genuinely make nearby
+animations feel heavier even with identical underlying math. Added
+`will-change: opacity` to the backdrop specifically, isolating the
+blur into its own stable compositor layer so it doesn't get
+re-flattened alongside the cursor's per-frame updates.
+
+**Structure flattened**, per the requested layer list. `.cs-gate` is
+now purely structural — no `position`, `z-index`, or `display` of its
+own, just the `[hidden]` toggle and state classes JS already used.
+`.cs-gate-backdrop` and `.cs-gate-dialog` each independently handle
+their own `position: fixed`, removing one full stacking-context layer
+that previously sat between the case study and the dialog. Final
+layering: case study → backdrop (10000) → dialog (10000, painting
+above the backdrop via DOM order at equal z-index) → cursor (10001,
+unchanged from last round).
+
+**Two real bugs this restructure would have introduced, caught before
+shipping, not after**:
+1. The dialog now centers itself via `top: 50%; left: 50%; transform:
+   translate(-50%, -50%)` instead of being centered by a flex parent —
+   but the existing `prefers-reduced-motion` override set
+   `transform: none !important`, which would have stripped that
+   centering entirely and snapped the dialog to the top-left corner
+   for anyone with that preference enabled. Fixed to preserve the
+   centering translate while only neutralizing the animated portion.
+2. The shake keyframes set `transform` directly in each step — CSS
+   animations replace an element's whole transform value rather than
+   composing with its base one, so the dialog would have jumped away
+   from center for the entire duration of every shake. Fixed by
+   including the centering translate in every keyframe.
+
+Verified in the live build: dialog computed transform confirmed
+correct after full settle, centered at exactly the viewport's center
+point (not just visually close — checked to the pixel); backdrop
+confirmed covering the full viewport exactly; dialog center measured
+mid-shake and confirmed it stays at the viewport center throughout
+(not jumping to a corner), and returns to exact center once the shake
+settles; reduced-motion path re-verified separately. Re-ran the
+complete existing test suite on top of this: `inert`, focus trap,
+wrong-password handling, the visibility toggle, the cursor's
+hover-enlarge on the gate's own Continue button, and successful unlock
+all still work exactly as before. Confirmed on both mobile viewport
+sizing and `tatheer.html` independently. Zero failed requests, zero
+console errors on any of the three pages.
+
+## Blur reduced to 10px per explicit trade-off — honest benchmark result
+
+Implemented the agreed trade-off: `backdrop-filter: blur(20px)` →
+`blur(10px)`, with the background tint darkened from `rgba(16,17,20,
+0.35)` to `rgba(16,17,20,0.45)` to compensate for the lighter blur,
+keeping a similar perceived "obscured" effect with less GPU sampling
+work.
+
+**Benchmarked honestly, not just implemented and assumed.** Given the
+previous round's finding that this environment has real measurement
+noise (±9ms across identical, unchanged code), ran 4 separate trials
+of the new 10px version rather than a single sample: 34.90-37.13ms,
+mean 36.01ms. That falls *within* the noise band already established
+for the old 20px version (31.11-40.23ms across its own 4 trials) —
+meaning this specific test environment cannot confidently distinguish
+the two. Reporting that directly rather than claiming a speedup I
+can't actually demonstrate here. The theoretical basis for the change
+is still sound (blur sampling cost scales with radius, and 10px is
+meaningfully less work than 20px), and a real user's GPU-accelerated
+browser is very likely to show a clearer, more reliable improvement
+than what this constrained environment can measure — but that's a
+reasoned expectation, not something verified in this session.
+
+Verified the change applied correctly and nothing else regressed:
+computed `backdropFilter` is `blur(10px)`, computed background color
+is `rgba(16,17,20,0.45)`; re-ran the full existing gate test suite —
+`inert`, focus trap, wrong-password handling, and successful unlock
+all still work exactly as before. Zero failed requests, zero console
+errors on any of the three pages.
+
+## Stuck :hover state on mouse-leaves-window fixed — not a cursor bug
+
+Real bug, confirmed empirically before fixing anything: hovered the
+"Back to Portfolio" link, then dispatched a genuine document-level
+`mouseleave` event and checked `element.matches(':hover')` directly —
+it returned `true`. The element's `:hover` pseudo-class state doesn't
+reliably clear when the pointer leaves the rendering surface entirely,
+because `:hover` is normally cleared by mouse movement targeting
+*away* from the element, which never happens if the cursor just
+vanishes off the edge of the window (to browser chrome, another
+monitor, etc.) — this is a general browser characteristic, not
+something specific to this cursor system. That link sits directly
+above the page's main heading, and its hover state includes a real
+`box-shadow`, which explains both the "dark shadow" description and
+why it appeared specifically near the heading.
+
+Fixed in the existing `onMouseLeaveDoc` handler (already firing
+correctly on document mouseleave, previously only used to hide the
+custom cursor) using the standard technique for this exact class of
+bug: briefly setting `pointer-events: none` on `<body>` forces the
+browser to invalidate every current `:hover` match immediately, then
+restoring it on the next animation frame lets hover re-evaluate
+cleanly against wherever the mouse actually is.
+
+**Honest limitation of this round's testing**: Playwright maintains an
+internal virtual mouse position that persists across script-dispatched
+events — it can't fully replicate a real OS-level "mouse position
+becomes unknown to the page" the way an actual departing cursor does,
+so I can't produce a headless test that watches the stuck state
+resolve to nothing the way a real user would experience it. What I
+could and did verify: the fix causes no regression — after the mouse
+actually moves to a new position (which Playwright *can* genuinely
+simulate), hover correctly clears from the old element and applies to
+whatever's now under the cursor, on both the homepage and both case
+study pages. The underlying technique is a well-established, widely
+documented fix for this specific browser behavior, which is why I'm
+confident in it despite the test harness limitation.
+
+Verified in the live build: normal hover behavior (background reveal,
+shadow, cursor tracking) all confirmed still working correctly on the
+homepage and both case study pages; zero failed requests, zero console
+errors anywhere.
+
 ## Known gap
 
 - Nav has a "Skills" link (`#skills`), but there is no Skills section

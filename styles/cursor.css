@@ -35,7 +35,7 @@
     --cy: 50vh;
     transform: translate3d(var(--cx), var(--cy), 0);
     pointer-events: none;
-    z-index: 9999;
+    z-index: 10001;
     will-change: transform;
     transition: opacity 200ms ease-out;
   }
@@ -79,23 +79,6 @@
   body.cursor-hidden .cursor-dot-wrap,
   body.cursor-hidden .cursor-ring-wrap {
     opacity: 0;
-  }
-
-  /* While the password gate is open, the plain system cursor takes
-     over for background content — matching how a real native modal
-     behaves. (The custom cursor's actual hiding now happens at the JS
-     level: cursor.js's suspend() adds the same `cursor-hidden` class
-     already handled above, as a genuine suspend rather than a second,
-     separate CSS override doing the same job.) Scoped to `main`
-     specifically (background content only) — .cs-gate is a sibling of
-     main, not nested inside it, so this never touches the gate's own
-     buttons, which keep their explicit pointer cursor. */
-  body.cs-gate-locked.has-custom-cursor main,
-  body.cs-gate-locked.has-custom-cursor main a,
-  body.cs-gate-locked.has-custom-cursor main button,
-  body.cs-gate-locked.has-custom-cursor main input,
-  body.cs-gate-locked.has-custom-cursor main textarea {
-    cursor: auto;
   }
 }
 
