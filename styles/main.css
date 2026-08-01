@@ -44,6 +44,7 @@
   /* shadow/sm (two-layer, from Figma variable defs) */
   --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
   --shadow-card-hover: 0 10px 20px -14px rgba(16, 17, 20, 0.10), 0 2px 6px -2px rgba(16, 17, 20, 0.05);
+  --shadow-btn-hover: 0 6px 16px -8px rgba(16, 17, 20, 0.14), 0 1px 4px -1px rgba(16, 17, 20, 0.06);
 
   /* type */
   --font-geist: 'Geist', sans-serif;
@@ -196,6 +197,7 @@ p { margin: 0; }
   line-height: 48px;
   color: var(--ink-900);
   max-width: 640px;
+  text-wrap: balance;
 }
 
 .section-shell {
@@ -233,8 +235,29 @@ p { margin: 0; }
 
 .btn-dark { background: var(--ink-850); color: var(--white); }
 .btn-dark:hover { background: var(--ink-900); transform: translateY(-4px); box-shadow: var(--shadow-card-hover); }
-.btn-ghost { background: transparent; color: var(--ink-450); }
-.btn-ghost:hover { background: var(--line-guide); color: var(--ink-900); transform: translateY(-4px); box-shadow: var(--shadow-card-hover); }
+.btn-ghost {
+  background: transparent;
+  color: var(--ink-450);
+  border: 1px solid transparent;
+  transition: background-color 220ms ease-out, color 220ms ease-out, border-color 220ms ease-out, transform 220ms ease-out, box-shadow 220ms ease-out;
+}
+.btn-ghost:hover,
+.btn-ghost:focus-visible {
+  background: var(--card-bg);
+  color: var(--ink-900);
+  border-color: var(--line-tag);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-btn-hover);
+}
+.btn-ghost:active {
+  transform: translateY(0);
+  box-shadow: none;
+  background: var(--line-guide);
+}
+.btn-ghost img,
+.btn-ghost svg {
+  transition: transform 220ms ease-out;
+}
 .btn-outline {
   background: transparent;
   color: var(--ink-850);
@@ -358,6 +381,7 @@ p { margin: 0; }
   line-height: 68px;
   color: var(--ink-900);
   margin: 0;
+  text-wrap: balance;
 }
 .hero-heading span { display: block; color: var(--ink-450); }
 
@@ -368,6 +392,7 @@ p { margin: 0; }
   line-height: 34px;
   color: var(--ink-600);
   max-width: 900px;
+  text-wrap: pretty;
 }
 
 .hero-meta { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
@@ -382,7 +407,9 @@ p { margin: 0; }
 }
 
 .hero-actions { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
-.hero-actions svg { width: 20px; height: 20px; }
+.hero-actions svg, .hero-actions img { width: 20px; height: 20px; }
+.hero-actions .btn-ghost:hover .btn-icon-fill,
+.hero-actions .btn-ghost:focus-visible .btn-icon-fill { transform: scale(1.05); }
 
 /* ---------- Texture band ---------- */
 /* Frame 4895:38349 in Figma: 960x100, overflow-clip. Pattern node 4895:38350
@@ -496,7 +523,7 @@ p { margin: 0; }
   margin-top: 14.5px;
   flex-shrink: 0;
 }
-.exp-bullets p { font-family: var(--font-inter); font-weight: 500; font-size: 16px; line-height: 34px; color: var(--ink-600); }
+.exp-bullets p { font-family: var(--font-inter); font-weight: 500; font-size: 16px; line-height: 34px; color: var(--ink-600); text-wrap: pretty; }
 
 /* ---------- Case studies ---------- */
 .case-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
@@ -528,9 +555,9 @@ p { margin: 0; }
 .case-card:hover .case-figure img { filter: grayscale(0%); }
 .case-body { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
 .case-title-row { display: flex; align-items: baseline; justify-content: space-between; }
-.case-title { font-family: var(--font-inter); font-weight: 600; font-size: 20px; line-height: 32px; color: var(--ink-850); margin: 0; }
+.case-title { font-family: var(--font-inter); font-weight: 600; font-size: 20px; line-height: 32px; color: var(--ink-850); margin: 0; text-wrap: balance; }
 .case-year { font-family: var(--font-figtree); font-weight: 500; font-size: 16px; color: var(--ink-700); }
-.case-desc { font-family: var(--font-figtree); font-weight: 500; font-size: 18px; line-height: 23.8px; color: var(--ink-600); }
+.case-desc { font-family: var(--font-figtree); font-weight: 500; font-size: 18px; line-height: 23.8px; color: var(--ink-600); text-wrap: pretty; }
 
 /* ---------- Certifications ---------- */
 .cert-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
@@ -553,7 +580,7 @@ p { margin: 0; }
 }
 .cert-icon { display: block; height: 40px; width: auto; filter: grayscale(100%); transition: filter 300ms ease-out; }
 .cert-card:hover .cert-icon { filter: grayscale(0%); }
-.cert-name { font-family: var(--font-inter); font-weight: 600; font-size: 20px; line-height: 32px; color: var(--ink-850); margin: 0; }
+.cert-name { font-family: var(--font-inter); font-weight: 600; font-size: 20px; line-height: 32px; color: var(--ink-850); margin: 0; text-wrap: balance; }
 .cert-issued { font-family: var(--font-figtree); font-weight: 500; font-size: 18px; line-height: 24.6px; color: var(--ink-400); }
 .cert-id {
   display: flex;
@@ -602,8 +629,8 @@ p { margin: 0; }
 }
 .contact-col { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 40px; }
 .contact-header-group { display: flex; flex-direction: column; gap: 16px; }
-.contact-heading { font-family: var(--font-geist); font-weight: 500; font-size: 40px; line-height: 48px; color: var(--contact-fg); margin: 0; }
-.contact-lede { font-family: var(--font-inter); font-weight: 500; font-size: 16px; line-height: 34px; color: var(--ink-600); max-width: 386px; margin: 0; }
+.contact-heading { font-family: var(--font-geist); font-weight: 500; font-size: 40px; line-height: 48px; color: var(--contact-fg); margin: 0; text-wrap: balance; }
+.contact-lede { font-family: var(--font-inter); font-weight: 500; font-size: 16px; line-height: 34px; color: var(--ink-600); max-width: 386px; margin: 0; text-wrap: pretty; }
 .contact-links { display: flex; flex-direction: column; }
 .contact-link-row, .contact-info-row {
   display: flex;
@@ -682,7 +709,9 @@ p { margin: 0; }
   flex-wrap: wrap;
 }
 .footer-copy { font-family: var(--font-inter); font-weight: 500; font-size: 16px; line-height: 21px; color: var(--ink-700); margin: 0; }
-.footer-top-btn svg { width: 20px; height: 20px; }
+.footer-top-btn svg, .footer-top-btn img { width: 20px; height: 20px; }
+.footer-top-btn:hover .btn-icon-fill,
+.footer-top-btn:focus-visible .btn-icon-fill { transform: scale(1.05); }
 
 /* ---------- Responsive ---------- */
 @media (max-width: 860px) {

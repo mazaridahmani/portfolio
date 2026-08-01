@@ -1,0 +1,244 @@
+/* ==========================================================================
+   PASSWORD GATE
+   A soft client-side gate, not real access control — the case study is
+   already present in the DOM behind it. This exists to politely ask an
+   unlisted visitor for a password before an unreleased case study is
+   publicly linkable, not to protect sensitive data. Every value below is
+   reused from the site's own tokens; nothing new was introduced.
+   ========================================================================== */
+
+.cs-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+/* The class above sets its own display, which — per normal CSS cascade
+   rules — outranks the [hidden] attribute's UA-stylesheet default of
+   display:none, regardless of hidden being an attribute rather than a
+   class. Without this, the gate stays interaction-blocking even after
+   JS marks it hidden. Real bug, caught via testing, not theoretical. */
+.cs-gate[hidden] {
+  display: none;
+}
+
+.cs-gate-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(16, 17, 20, 0.35);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  opacity: 0;
+  /* Only opacity transitions — the blur radius itself stays constant
+     at all times. Animating backdrop-filter directly is what caused
+     the ghosting/double-image artifact on text behind the overlay:
+     Chromium has to re-rasterize the backdrop at every intermediate
+     blur value during the transition, and text underneath doesn't
+     sample cleanly at partial blur radii. Fading a backdrop that's
+     already fully blurred underneath is the standard, artifact-free
+     approach. */
+  transition: opacity 350ms ease-out;
+}
+.cs-gate.is-open .cs-gate-backdrop { opacity: 1; }
+
+.cs-gate-dialog {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  background: var(--card-bg);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-card-hover), 0 24px 48px -12px rgba(16, 17, 20, 0.25);
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+  opacity: 0;
+  transform: scale(0.96) translateY(8px);
+  transition: opacity 350ms cubic-bezier(0.16, 1, 0.3, 1), transform 350ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cs-gate.is-open .cs-gate-dialog { opacity: 1; transform: scale(1) translateY(0); }
+
+/* Closing state — smoothly fades everything out on success rather than
+   snapping away */
+.cs-gate.is-closing .cs-gate-backdrop { opacity: 0; }
+.cs-gate.is-closing .cs-gate-dialog { opacity: 0; transform: scale(0.98) translateY(-4px); }
+
+.cs-gate-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-md);
+  background: var(--surface-media);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-700);
+  margin-bottom: 4px;
+}
+.cs-gate-icon svg { width: 20px; height: 20px; }
+
+.cs-gate-title {
+  font-family: var(--font-geist);
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 32px;
+  color: var(--ink-900);
+  margin: 0;
+}
+
+.cs-gate-desc {
+  font-family: var(--font-inter);
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 24px;
+  color: var(--ink-600);
+  margin: 0;
+  max-width: 320px;
+  text-wrap: pretty;
+}
+
+.cs-gate-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.cs-gate-field { position: relative; width: 100%; }
+.cs-gate-input {
+  width: 100%;
+  background: var(--surface-media);
+  border: 1px solid var(--line-tag);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+  font-family: var(--font-inter);
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--ink-900);
+  transition: border-color 220ms ease-out, background-color 220ms ease-out, box-shadow 220ms ease-out;
+}
+.cs-gate-input::placeholder { color: var(--ink-450); font-weight: 500; }
+.cs-gate-input:hover { border-color: var(--ink-350); }
+.cs-gate-input:focus-visible {
+  outline: none;
+  background: var(--card-bg);
+  border-color: var(--ink-850);
+  box-shadow: 0 0 0 3px rgba(16, 17, 20, 0.08);
+}
+.cs-gate-field.has-error .cs-gate-input {
+  border-color: var(--color-error);
+}
+.cs-gate-field.has-error .cs-gate-input:focus-visible {
+  box-shadow: 0 0 0 3px rgba(224, 104, 95, 0.14);
+}
+
+.cs-gate-error {
+  font-family: var(--font-inter);
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--color-error);
+  margin: 0;
+  text-align: left;
+  min-height: 0;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 220ms ease-out, opacity 220ms ease-out, margin-top 220ms ease-out;
+}
+.cs-gate-field.has-error .cs-gate-error {
+  max-height: 40px;
+  opacity: 1;
+  margin-top: 2px;
+}
+
+.cs-gate-submit { width: 100%; margin-top: 4px; cursor: pointer; }
+.cs-gate-submit:disabled { cursor: default; }
+
+/* Shake feedback on an incorrect attempt — small amplitude, quick, a
+   handful of oscillations rather than a cartoonish wide shake */
+@keyframes cs-gate-shake {
+  10%, 90% { transform: translateX(-1px); }
+  20%, 80% { transform: translateX(2px); }
+  30%, 50%, 70% { transform: translateX(-4px); }
+  40%, 60% { transform: translateX(4px); }
+}
+.cs-gate-dialog.is-shaking { animation: cs-gate-shake 420ms ease-in-out; }
+
+body.cs-gate-locked { overflow: hidden; }
+/* Explicit, unambiguous interaction block — beyond the gate's own
+   z-index layering — so nothing behind it can register a hover or
+   click while it's open, on any browser. */
+body.cs-gate-locked > *:not(.cs-gate) {
+  pointer-events: none;
+}
+
+.cs-gate-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--r-sm);
+  border: 1px solid transparent;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-450);
+  transition: background-color 220ms ease-out, color 220ms ease-out, border-color 220ms ease-out;
+}
+/* The site-wide custom-cursor rule sets cursor:none on every button
+   (needed so the custom cursor dot/ring can take over elsewhere); the
+   gate is hidden while itself is open regardless, so its own buttons
+   need their real pointer cursor back — this specifically outranks
+   that rule rather than fighting it via !important. */
+body.has-custom-cursor .cs-gate-close,
+body.has-custom-cursor .cs-gate-toggle,
+body.has-custom-cursor .cs-gate-submit {
+  cursor: pointer;
+}
+.cs-gate-close svg { width: 16px; height: 16px; }
+.cs-gate-close:hover,
+.cs-gate-close:focus-visible {
+  background: var(--surface-media);
+  border-color: var(--line-tag);
+  color: var(--ink-900);
+}
+
+.cs-gate-toggle {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  border-radius: var(--r-sm);
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-450);
+  cursor: pointer;
+  transition: color 220ms ease-out, background-color 220ms ease-out;
+}
+.cs-gate-toggle svg { width: 18px; height: 18px; }
+.cs-gate-toggle .cs-gate-eye-off { display: none; }
+.cs-gate-toggle.is-visible .cs-gate-eye { display: none; }
+.cs-gate-toggle.is-visible .cs-gate-eye-off { display: block; }
+.cs-gate-toggle:hover,
+.cs-gate-toggle:focus-visible { color: var(--ink-900); background: var(--line-tag); }
+.cs-gate-input { padding-right: 44px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cs-gate-backdrop, .cs-gate-dialog { transition: opacity 150ms linear !important; transform: none !important; }
+  .cs-gate-dialog.is-shaking { animation: none; }
+}
+
+@media (max-width: 480px) {
+  .cs-gate-dialog { padding: 32px 24px; }
+}

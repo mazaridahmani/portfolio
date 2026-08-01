@@ -39,6 +39,7 @@
 <link rel="stylesheet" href="styles/main.css">
 <link rel="stylesheet" href="styles/case-study.css">
 <link rel="stylesheet" href="styles/cursor.css">
+<link rel="stylesheet" href="styles/gate.css">
 
 <script type="application/ld+json">
 {
@@ -71,7 +72,7 @@
   <!-- No top nav on case study pages, by design — immersive, project-focused. -->
   <section class="hero-guide">
     <div class="cs-back-wrap" style="padding-left:24px;padding-right:24px;">
-      <a class="btn btn-ghost cs-back" href="index.html#work"><img src="assets/icon-back-portfolio.svg" width="20" height="20" alt="">Back to Portfolio</a>
+      <a class="btn btn-ghost cs-back" href="index.html#work"><svg class="btn-icon-fill" viewBox="0 0 20 20" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.5058 3.5775C13.6621 3.73377 13.7498 3.9457 13.7498 4.16667C13.7498 4.38764 13.6621 4.59956 13.5058 4.75583L8.26166 10L13.5058 15.2442C13.6576 15.4013 13.7416 15.6118 13.7397 15.8303C13.7378 16.0488 13.6502 16.2578 13.4957 16.4123C13.3412 16.5669 13.1322 16.6545 12.9137 16.6564C12.6952 16.6583 12.4847 16.5743 12.3275 16.4225L7.08333 11.1783C6.77088 10.8658 6.59535 10.4419 6.59535 10C6.59535 9.55806 6.77088 9.13421 7.08333 8.82167L12.3275 3.5775C12.4838 3.42127 12.6957 3.33351 12.9167 3.33351C13.1376 3.33351 13.3496 3.42127 13.5058 3.5775Z" fill="currentColor"/></svg>Back to Portfolio</a>
     </div>
     <div class="hero-inner">
       <div class="tag-row">
@@ -244,14 +245,40 @@
       <div>
         <p class="footer-copy">© 2026 Mazari Dahmani. Designed &amp; built with obsessive attention to detail.</p>
       </div>
-      <a class="btn btn-ghost footer-top-btn" href="#top">Back to Top <img src="assets/icon-back-top.svg" width="20" height="20" alt=""></a>
+      <a class="btn btn-ghost footer-top-btn" href="#top">Back to Top <svg class="btn-icon-fill" viewBox="0 0 20 20" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M16.4226 13.5057C16.2663 13.6619 16.0544 13.7497 15.8334 13.7497C15.6124 13.7497 15.4005 13.6619 15.2442 13.5057L10.0001 8.26153L4.75589 13.5057C4.59872 13.6575 4.38822 13.7415 4.16972 13.7396C3.95122 13.7377 3.74221 13.65 3.58771 13.4955C3.4332 13.341 3.34556 13.132 3.34366 12.9135C3.34176 12.695 3.42576 12.4845 3.57755 12.3274L8.82172 7.08319C9.13427 6.77074 9.55811 6.59521 10.0001 6.59521C10.442 6.59521 10.8658 6.77074 11.1784 7.08319L16.4226 12.3274C16.5788 12.4836 16.6665 12.6956 16.6665 12.9165C16.6665 13.1375 16.5788 13.3494 16.4226 13.5057Z" fill="currentColor"/></svg></a>
     </div>
   </footer>
 
 </main>
 
+<div class="cs-gate" id="cs-gate" hidden>
+  <div class="cs-gate-backdrop"></div>
+  <div class="cs-gate-dialog" role="dialog" aria-modal="true" aria-labelledby="cs-gate-title" aria-describedby="cs-gate-desc">
+    <button type="button" class="cs-gate-close" id="cs-gate-close" aria-label="Close">
+      <svg viewBox="0 0 20 20" fill="none"><path d="M5 5l10 10M15 5 5 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </button>
+    <div class="cs-gate-icon">
+      <svg viewBox="0 0 24 24" fill="none"><rect x="5" y="11" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </div>
+    <h2 class="cs-gate-title" id="cs-gate-title">Confidential Case Study</h2>
+    <p class="cs-gate-desc" id="cs-gate-desc">This project has not been publicly released yet. Access is restricted. Please enter the password to continue.</p>
+    <form class="cs-gate-form" id="cs-gate-form" novalidate>
+      <div class="cs-gate-field" id="cs-gate-field">
+        <input type="password" class="cs-gate-input" id="cs-gate-input" placeholder="Password" autocomplete="off" aria-label="Password" data-lpignore="true" data-1p-ignore="true" data-bwignore="true" data-form-type="other">
+        <button type="button" class="cs-gate-toggle" id="cs-gate-toggle" aria-label="Show password" aria-pressed="false">
+          <svg class="cs-gate-eye" viewBox="0 0 20 20" fill="none"><path d="M1.5 10S4.5 4 10 4s8.5 6 8.5 6-3 6-8.5 6-8.5-6-8.5-6Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.6"/></svg>
+          <svg class="cs-gate-eye-off" viewBox="0 0 20 20" fill="none"><path d="M1.5 10S4.5 4 10 4s8.5 6 8.5 6-3 6-8.5 6-8.5-6-8.5-6Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.6"/><path d="M3 3l14 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </button>
+        <p class="cs-gate-error" id="cs-gate-error" role="alert"></p>
+      </div>
+      <button type="submit" class="btn btn-dark cs-gate-submit" id="cs-gate-submit">Continue</button>
+    </form>
+  </div>
+</div>
+
 <script src="scripts/main.js"></script>
 <script src="scripts/case-study.js"></script>
 <script src="scripts/cursor.js"></script>
+<script src="scripts/gate.js"></script>
 </body>
 </html>

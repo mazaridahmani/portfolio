@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MPay — Fintech Case Study by Mazari Dahmani</title>
-<meta name="description" content="How Mazari Dahmani designed MPay, a secure P2P transfer and bill payment platform for Banque Al Baraka Algeria — from research to a 2.1× faster transfer flow.">
+<meta name="description" content="How Mazari Dahmani designed MPay, a digital banking app for Algeria — onboarding, eKYC, transfers, and QR payments in one connected product for Banque Al Baraka Algeria.">
 <meta name="robots" content="index, follow">
 <meta name="theme-color" content="#f7f7f7">
 <link rel="canonical" href="https://mazaridahmani.com/mpay.html">
@@ -13,7 +13,7 @@
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="Mazari Dahmani">
 <meta property="og:title" content="MPay — Fintech Case Study by Mazari Dahmani">
-<meta property="og:description" content="How Mazari Dahmani designed MPay, a secure P2P transfer and bill payment platform for Banque Al Baraka Algeria — from research to a 2.1× faster transfer flow.">
+<meta property="og:description" content="How Mazari Dahmani designed MPay, a digital banking app for Algeria — onboarding, eKYC, transfers, and QR payments in one connected product for Banque Al Baraka Algeria.">
 <meta property="og:url" content="https://mazaridahmani.com/mpay.html">
 <meta property="og:image" content="https://mazaridahmani.com/assets/seo/og-mpay.png">
 <meta property="og:image:width" content="1200">
@@ -24,7 +24,7 @@
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="MPay — Fintech Case Study by Mazari Dahmani">
-<meta name="twitter:description" content="A secure P2P transfer and bill payment platform for Banque Al Baraka Algeria, designed end-to-end.">
+<meta name="twitter:description" content="A digital banking app for Algeria, designed end-to-end for Banque Al Baraka Algeria.">
 <meta name="twitter:image" content="https://mazaridahmani.com/assets/seo/og-mpay.png">
 <meta name="twitter:image:alt" content="MPay — Case Study by Mazari Dahmani">
 
@@ -39,6 +39,7 @@
 <link rel="stylesheet" href="styles/main.css">
 <link rel="stylesheet" href="styles/case-study.css">
 <link rel="stylesheet" href="styles/cursor.css">
+<link rel="stylesheet" href="styles/gate.css">
 
 <script type="application/ld+json">
 {
@@ -71,19 +72,19 @@
   <!-- No top nav on case study pages, by design — immersive, project-focused. -->
   <section class="hero-guide">
     <div class="cs-back-wrap" style="padding-left:24px;padding-right:24px;">
-      <a class="btn btn-ghost cs-back" href="index.html#work"><img src="assets/icon-back-portfolio.svg" width="20" height="20" alt="">Back to Portfolio</a>
+      <a class="btn btn-ghost cs-back" href="index.html#work"><svg class="btn-icon-fill" viewBox="0 0 20 20" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.5058 3.5775C13.6621 3.73377 13.7498 3.9457 13.7498 4.16667C13.7498 4.38764 13.6621 4.59956 13.5058 4.75583L8.26166 10L13.5058 15.2442C13.6576 15.4013 13.7416 15.6118 13.7397 15.8303C13.7378 16.0488 13.6502 16.2578 13.4957 16.4123C13.3412 16.5669 13.1322 16.6545 12.9137 16.6564C12.6952 16.6583 12.4847 16.5743 12.3275 16.4225L7.08333 11.1783C6.77088 10.8658 6.59535 10.4419 6.59535 10C6.59535 9.55806 6.77088 9.13421 7.08333 8.82167L12.3275 3.5775C12.4838 3.42127 12.6957 3.33351 12.9167 3.33351C13.1376 3.33351 13.3496 3.42127 13.5058 3.5775Z" fill="currentColor"/></svg>Back to Portfolio</a>
     </div>
     <div class="hero-inner">
       <div class="tag-row">
         <span class="tag">Fintech</span>
-        <span class="tag">Bill Payments</span>
+        <span class="tag">Digital Banking</span>
         <span class="tag">Financial Services</span>
       </div>
       <h1 class="hero-heading">MPay</h1>
       <div class="cs-hero-meta">
         <p class="exp-dates" style="margin:0;">2024 · Teletic</p>
       </div>
-      <p class="hero-lede">A secure P2P money transfer and bill payment platform, designed end-to-end for Banque Al Baraka Algeria across mobile and web — built to make everyday payments feel instant, trustworthy, and simple.</p>
+      <p class="hero-lede">A digital banking app built for Algeria — onboarding, identity verification, transfers, and QR payments in one connected product. Designed end-to-end for Banque Al Baraka Algeria, from first download to daily use.</p>
     </div>
   </section>
 
@@ -101,29 +102,29 @@
     <div class="section-shell" style="padding-top:89px;">
 
       <div class="cs-media cs-media-hero reveal">
-        <svg viewBox="0 0 40 40" fill="none"><path d="M20 4 34 34H6L20 4Z" stroke="currentColor" stroke-width="2"/></svg>
+        <img src="assets/case-study/mpay-screens/hero-cover.svg" alt="MPay — cover">
       </div>
 
       <div class="cs-meta-grid reveal">
         <div class="cs-box cs-meta-item">
           <img class="cs-meta-icon" src="assets/case-study/icon-overview.svg" width="20" height="20" alt="">
           <p class="cs-meta-label">Overview</p>
-          <p class="cs-meta-text">MPay unifies P2P transfers and everyday bill payments into a single, secure product for Banque Al Baraka Algeria's customers, replacing a fragmented set of in-branch and legacy-app workflows.</p>
+          <p class="cs-meta-text">MPay replaces a fragmented mix of branch visits, paper forms, and disconnected apps with one banking app. This case study walks through six representative flows — the full product is considerably larger.</p>
         </div>
         <div class="cs-box cs-meta-item">
           <img class="cs-meta-icon" src="assets/case-study/icon-problem.svg" width="20" height="20" alt="">
           <p class="cs-meta-label">Problem</p>
-          <p class="cs-meta-text">Customers juggled separate flows — often separate apps — to send money versus pay bills, with inconsistent verification steps that eroded trust at exactly the moment money was changing hands.</p>
+          <p class="cs-meta-text">Every part of banking in Algeria meant a different queue — one to open an account, another to verify identity, another to send money. Trust eroded a little at each handoff.</p>
         </div>
         <div class="cs-box cs-meta-item">
           <img class="cs-meta-icon" src="assets/case-study/icon-goals.svg" width="20" height="20" alt="">
           <p class="cs-meta-label">Goals</p>
-          <p class="cs-meta-text">Cut the time to complete a transfer, unify transfers and bill payments under one mental model, and meet compliance requirements without the flow feeling like a form.</p>
+          <p class="cs-meta-text">One onboarding a customer never repeats, verification that meets regulatory requirements without feeling like an interrogation, and day-to-day banking that feels instant.</p>
         </div>
         <div class="cs-box cs-meta-item">
           <img class="cs-meta-icon" src="assets/case-study/icon-my-role.svg" width="20" height="20" alt="">
           <p class="cs-meta-label">My Role</p>
-          <p class="cs-meta-text">Lead Product Designer — end-to-end UX and UI, working closely with the Project Manager and CEO to keep the product aligned with compliance requirements and the launch timeline.</p>
+          <p class="cs-meta-text">Lead Product Designer, end-to-end across every flow — working closely with the Project Manager and CEO on compliance and the launch timeline.</p>
         </div>
       </div>
 
@@ -135,18 +136,20 @@
 
     <div class="section-shell" style="padding-top:89px;">
       <div class="cs-flow reveal">
-        <span class="eyebrow-badge">Process</span>
-        <h2 class="section-heading">Starting from the moments people trust least.</h2>
-        <p class="hero-lede">People didn't distrust the bank — they distrusted the moment of sending money. Process started there.</p>
-        <div class="cs-box cs-list-box" style="width:100%;">
-          <ul class="exp-bullets">
-            <li><p>14 customer interviews across two cities, focused on their last transfer.</p></li>
-            <li><p>Mapped the old multi-app journey to cut redundant steps.</p></li>
-            <li><p>Tested low-fi flows with branch staff before any visual design.</p></li>
-            <li><p>Weekly syncs with the PM and CEO to protect the timeline.</p></li>
-          </ul>
+        <div class="eyebrow-row">
+          <span class="eyebrow-badge">Onboarding</span>
+          <h2 class="section-heading">Ask for the choice that matters first.</h2>
+        </div>
+        <div class="cs-flow-text">
+          <p class="hero-lede">Most banking onboarding fails for the same reason: it asks for everything before proving anything's worth the wait. MPay's flow front-loads the one choice everything downstream depends on — personal or business account.</p>
+          <p class="hero-lede">Address and personal information are split into separate steps, not because the form needs it, but because one long form reads as effort with no reward. Each screen closes a small, visible loop before opening the next.</p>
+          <p class="hero-lede">Password and PIN are treated as two different security layers, not two versions of the same step — PIN for daily unlock, password for account recovery. Conflating them was the fastest way to make both feel arbitrary.</p>
+        </div>
+        <div class="cs-flow-strip reveal">
+          <img src="assets/case-study/mpay-screens/onboarding-flow.svg" alt="Onboarding flow: Welcome, Account Type, Personal Information, Address, Create Password, Account Created, Create a PIN, Confirm PIN">
         </div>
       </div>
+
     </div>
 
     <div class="divider-inline"></div>
@@ -155,17 +158,20 @@
 
     <div class="section-shell" style="padding-top:89px;">
       <div class="cs-flow reveal">
-        <span class="eyebrow-badge">Design System</span>
-        <h2 class="section-heading">One token set, two surfaces.</h2>
-        <p class="hero-lede">One token set for mobile and web — a single change updates every surface.</p>
-        <div class="cs-box cs-swatch-row">
-          <div class="cs-swatch"><div class="cs-swatch-chip" style="background:#0f6b4f"></div><span class="cs-meta-label" style="font-size:12px;line-height:21px;letter-spacing:0.5px;text-transform:uppercase;">Success</span></div>
-          <div class="cs-swatch"><div class="cs-swatch-chip" style="background:#b3261e"></div><span class="cs-meta-label" style="font-size:12px;line-height:21px;letter-spacing:0.5px;text-transform:uppercase;">Alert</span></div>
-          <div class="cs-swatch"><div class="cs-swatch-chip" style="background:#1b4b91"></div><span class="cs-meta-label" style="font-size:12px;line-height:21px;letter-spacing:0.5px;text-transform:uppercase;">Primary</span></div>
-          <div class="cs-swatch"><div class="cs-swatch-chip" style="background:#171717"></div><span class="cs-meta-label" style="font-size:12px;line-height:21px;letter-spacing:0.5px;text-transform:uppercase;">Ink</span></div>
-          <div class="cs-swatch"><div class="cs-swatch-chip" style="background:#f3f3f3;box-shadow:inset 0 0 0 1px #ebebeb"></div><span class="cs-meta-label" style="font-size:12px;line-height:21px;letter-spacing:0.5px;text-transform:uppercase;">Surface</span></div>
+        <div class="eyebrow-row">
+          <span class="eyebrow-badge">P2P Transfer</span>
+          <h2 class="section-heading">The moment with the least feedback gets the most attention.</h2>
+        </div>
+        <div class="cs-flow-text">
+          <p class="hero-lede">People didn't distrust the bank — they distrusted the moment of sending money. That shaped the whole flow: fewer steps between deciding to send and confirming it's done, and constant feedback at the one step that has none by default.</p>
+          <p class="hero-lede">Beneficiary search doubles as beneficiary management — searching, adding, and reusing a contact are the same interaction, not three screens pretending to be one. PIN confirmation sits directly before the send, not behind a review screen nobody reads twice.</p>
+          <p class="hero-lede">Failure states got equal design attention to success states. A transfer that doesn't go through is the moment trust is actually tested, not a rare edge case patched in later.</p>
+        </div>
+        <div class="cs-flow-strip reveal">
+          <img src="assets/case-study/mpay-screens/p2p-transfer-flow.svg" alt="P2P Transfer flow: Account Dashboard, Choose Beneficiary, Add Beneficiary, Beneficiary Added, Addition Failed, From Account, Transfer Amount, Confirm Details, Transfer Successful, Transfer Failed">
         </div>
       </div>
+
     </div>
 
     <div class="divider-inline"></div>
@@ -174,15 +180,20 @@
 
     <div class="section-shell" style="padding-top:89px;">
       <div class="cs-flow reveal">
-        <span class="eyebrow-badge">Key UI Screens</span>
-        <h2 class="section-heading">The four screens that carry the whole flow.</h2>
-        <div class="cs-screens-grid">
-          <div class="cs-screen"><svg viewBox="0 0 40 40" fill="none"><rect x="10" y="6" width="20" height="28" rx="3" stroke="currentColor" stroke-width="2"/><path d="M16 14h8M16 20h8M16 26h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
-          <div class="cs-screen"><svg viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="14" stroke="currentColor" stroke-width="2"/><path d="M14 20h12M20 14v12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
-          <div class="cs-screen"><svg viewBox="0 0 40 40" fill="none"><rect x="7" y="10" width="26" height="20" rx="3" stroke="currentColor" stroke-width="2"/><path d="M7 16h26" stroke="currentColor" stroke-width="2"/></svg></div>
-          <div class="cs-screen"><svg viewBox="0 0 40 40" fill="none"><path d="M8 30V16M18 30V10M28 30v-8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></div>
+        <div class="eyebrow-row">
+          <span class="eyebrow-badge">eKYC</span>
+          <h2 class="section-heading">Short for the customer, thorough for compliance — at once.</h2>
+        </div>
+        <div class="cs-flow-text">
+          <p class="hero-lede">Identity verification is the one flow customers want short and compliance requires thorough. Those two pressures don't resolve themselves.</p>
+          <p class="hero-lede">The verification checklist is its own screen, before the camera opens, so customers know exactly how many steps remain and why each is required — a compliance step explained is a compliance step that doesn't feel arbitrary.</p>
+          <p class="hero-lede">Front and back document capture are separate screens rather than one multi-angle capture, so a failed scan on one side doesn't force redoing both. Review comes before submission, with an explicit hold to catch mistakes before they become support tickets.</p>
+        </div>
+        <div class="cs-flow-strip reveal">
+          <img src="assets/case-study/mpay-screens/ekyc-flow.svg" alt="eKYC flow: Verification Checklist, Camera Front, Camera Back, Review, Submitted">
         </div>
       </div>
+
     </div>
 
     <div class="divider-inline"></div>
@@ -191,17 +202,20 @@
 
     <div class="section-shell" style="padding-top:89px;">
       <div class="cs-flow reveal">
-        <span class="eyebrow-badge">UX Decisions</span>
-        <h2 class="section-heading">A few decisions that mattered more than they looked.</h2>
-        <div class="cs-box cs-list-box" style="width:100%;">
-          <ul class="exp-bullets">
-            <li><p>Progressive disclosure replaces a five-step verification wall.</p></li>
-            <li><p>One consistent card state for pending, cleared, and failed.</p></li>
-            <li><p>Bills and transfers share a single "recipient" pattern.</p></li>
-            <li><p>Press-and-hold confirms sends — no extra screen needed.</p></li>
-          </ul>
+        <div class="eyebrow-row">
+          <span class="eyebrow-badge">Create QR Code</span>
+          <h2 class="section-heading">A request that doesn't need a beneficiary.</h2>
+        </div>
+        <div class="cs-flow-text">
+          <p class="hero-lede">P2P Transfer assumes you know who you're paying — a saved contact, a RIB. Create QR Code exists for the opposite case: someone who isn't in your contacts yet, doesn't share your bank, or is standing right in front of you with no time to type an account number.</p>
+          <p class="hero-lede">A generated code can carry a fixed amount or stay open, depending on the moment — a fixed amount for a specific debt someone owes you, an open one for a stall or small vendor who won't know the total until checkout.</p>
+          <p class="hero-lede">The scan-and-confirm screens deliberately reuse the same visual language as every other confirmation in the app. For the person paying, recognizing MPay matters more than understanding what generated the request in the first place — and generating the code itself stays to the fewest taps possible, since the whole point is that someone's waiting.</p>
+        </div>
+        <div class="cs-flow-strip reveal">
+          <img src="assets/case-study/mpay-screens/create-qr-code-flow.svg" alt="Create QR Code flow">
         </div>
       </div>
+
     </div>
 
     <div class="divider-inline"></div>
@@ -210,13 +224,40 @@
 
     <div class="section-shell" style="padding-top:89px;">
       <div class="cs-flow reveal">
-        <span class="eyebrow-badge">Gallery</span>
-        <h2 class="section-heading">A closer look.</h2>
-        <div class="cs-gallery-grid">
-          <div class="cs-gallery-item"><svg viewBox="0 0 40 40" fill="none"><path d="M20 4 34 34H6L20 4Z" stroke="currentColor" stroke-width="1.5"/></svg></div>
-          <div class="cs-gallery-item"><svg viewBox="0 0 40 40" fill="none"><rect x="6" y="6" width="28" height="28" rx="6" stroke="currentColor" stroke-width="1.5"/></svg></div>
+        <div class="eyebrow-row">
+          <span class="eyebrow-badge">Employee Management</span>
+          <h2 class="section-heading">Business accounts needed admin tools, not just banking tools.</h2>
+        </div>
+        <div class="cs-flow-text">
+          <p class="hero-lede">MPay isn't only a consumer banking app. Business accounts needed a secure way to manage employees without relying on the bank's back office. Business owners can create employee accounts, assign each employee to a specific store or branch, and manage access from one place.</p>
+          <p class="hero-lede">Employee creation separates personal information from work information because they change independently. Store assignment and employee roles belong to the business structure, not the employee's identity.</p>
+          <p class="hero-lede">This flow allows businesses to scale operations while keeping permissions organized across multiple stores, making day-to-day staff management simple and secure.</p>
+        </div>
+        <div class="cs-flow-strip reveal">
+          <img src="assets/case-study/mpay-screens/employee-management-grid.svg" alt="Employee Management: Personal Information, Job Information (State/Municipality, Stores, Roles), Account Info, plus Stores and Roles filter/search screens">
         </div>
       </div>
+
+    </div>
+
+    <div class="divider-inline"></div>
+    <div class="spacer-band"></div>
+    <div class="divider-inline"></div>
+
+    <div class="section-shell" style="padding-top:89px; padding-bottom:48px;">
+      <div class="cs-flow reveal">
+        <div class="eyebrow-row">
+          <span class="eyebrow-badge">Reflection</span>
+          <h2 class="section-heading">Consistency across six flows was the real project.</h2>
+        </div>
+        <div class="cs-flow-text">
+          <p class="hero-lede">The hardest part of MPay wasn't designing individual screens—it was making six different experiences feel like one product. From onboarding and identity verification to money transfers, QR payments, and business administration, every flow needed to share the same interaction language while serving very different user goals. Maintaining that consistency across the entire app was the real design challenge.</p>
+          <p class="hero-lede">The Business Account experience introduced a second audience alongside everyday banking customers. Beyond payments, business owners needed practical tools to manage stores, create employee accounts, assign staff to branches, and organize permissions. Designing those administrative workflows while preserving the same visual language and usability as the consumer experience became an important part of the project.</p>
+          <p class="hero-lede">What's shown here is a curated selection, not the complete app. These six flows highlight the core product experience, while many additional journeys, edge cases, business features, and the complete design system are intentionally left out to keep this case study focused and concise.</p>
+        </div>
+        
+      </div>
+
     </div>
 
     <div class="divider-inline"></div>
@@ -244,14 +285,40 @@
       <div>
         <p class="footer-copy">© 2026 Mazari Dahmani. Designed &amp; built with obsessive attention to detail.</p>
       </div>
-      <a class="btn btn-ghost footer-top-btn" href="#top">Back to Top <img src="assets/icon-back-top.svg" width="20" height="20" alt=""></a>
+      <a class="btn btn-ghost footer-top-btn" href="#top">Back to Top <svg class="btn-icon-fill" viewBox="0 0 20 20" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M16.4226 13.5057C16.2663 13.6619 16.0544 13.7497 15.8334 13.7497C15.6124 13.7497 15.4005 13.6619 15.2442 13.5057L10.0001 8.26153L4.75589 13.5057C4.59872 13.6575 4.38822 13.7415 4.16972 13.7396C3.95122 13.7377 3.74221 13.65 3.58771 13.4955C3.4332 13.341 3.34556 13.132 3.34366 12.9135C3.34176 12.695 3.42576 12.4845 3.57755 12.3274L8.82172 7.08319C9.13427 6.77074 9.55811 6.59521 10.0001 6.59521C10.442 6.59521 10.8658 6.77074 11.1784 7.08319L16.4226 12.3274C16.5788 12.4836 16.6665 12.6956 16.6665 12.9165C16.6665 13.1375 16.5788 13.3494 16.4226 13.5057Z" fill="currentColor"/></svg></a>
     </div>
   </footer>
 
 </main>
 
+<div class="cs-gate" id="cs-gate" hidden>
+  <div class="cs-gate-backdrop"></div>
+  <div class="cs-gate-dialog" role="dialog" aria-modal="true" aria-labelledby="cs-gate-title" aria-describedby="cs-gate-desc">
+    <button type="button" class="cs-gate-close" id="cs-gate-close" aria-label="Close">
+      <svg viewBox="0 0 20 20" fill="none"><path d="M5 5l10 10M15 5 5 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </button>
+    <div class="cs-gate-icon">
+      <svg viewBox="0 0 24 24" fill="none"><rect x="5" y="11" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </div>
+    <h2 class="cs-gate-title" id="cs-gate-title">Confidential Case Study</h2>
+    <p class="cs-gate-desc" id="cs-gate-desc">This project has not been publicly released yet. Access is restricted. Please enter the password to continue.</p>
+    <form class="cs-gate-form" id="cs-gate-form" novalidate>
+      <div class="cs-gate-field" id="cs-gate-field">
+        <input type="password" class="cs-gate-input" id="cs-gate-input" placeholder="Password" autocomplete="off" aria-label="Password" data-lpignore="true" data-1p-ignore="true" data-bwignore="true" data-form-type="other">
+        <button type="button" class="cs-gate-toggle" id="cs-gate-toggle" aria-label="Show password" aria-pressed="false">
+          <svg class="cs-gate-eye" viewBox="0 0 20 20" fill="none"><path d="M1.5 10S4.5 4 10 4s8.5 6 8.5 6-3 6-8.5 6-8.5-6-8.5-6Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.6"/></svg>
+          <svg class="cs-gate-eye-off" viewBox="0 0 20 20" fill="none"><path d="M1.5 10S4.5 4 10 4s8.5 6 8.5 6-3 6-8.5 6-8.5-6-8.5-6Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.6"/><path d="M3 3l14 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </button>
+        <p class="cs-gate-error" id="cs-gate-error" role="alert"></p>
+      </div>
+      <button type="submit" class="btn btn-dark cs-gate-submit" id="cs-gate-submit">Continue</button>
+    </form>
+  </div>
+</div>
+
 <script src="scripts/main.js"></script>
 <script src="scripts/case-study.js"></script>
 <script src="scripts/cursor.js"></script>
+<script src="scripts/gate.js"></script>
 </body>
 </html>

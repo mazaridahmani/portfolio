@@ -37,10 +37,16 @@
   let ringX = mouseX;
   let ringY = mouseY;
   let hasPositioned = false;
+  let suspended = false;
+  let rafId = null;
 
   const RING_EASE = 0.18; // slight easing — a light follow, not a heavy trail
+  const HOVER_SELECTOR = 'a, button, [role="button"], .exp-card, .case-card, .cert-card, .proof-card, .cs-screen, .cs-gallery-item, input, textarea';
 
-  window.addEventListener('mousemove', (e) => {
+  // Every listener is a named function (not an inline arrow passed
+  // straight to addEventListener) specifically so it can be genuinely
+  // removed later, not just short-circuited with an if-check.
+  function onMouseMove(e) {
     mouseX = e.clientX;
     mouseY = e.clientY;
     dotWrap.style.setProperty('--cx', `${mouseX}px`);
@@ -51,32 +57,82 @@
       hasPositioned = true;
       document.body.classList.remove('cursor-hidden');
     }
-  }, { passive: true });
-
-  document.addEventListener('mouseleave', () => document.body.classList.add('cursor-hidden'));
-  document.addEventListener('mouseenter', () => { if (hasPositioned) document.body.classList.remove('cursor-hidden'); });
-
-  // Slight enlarge on interactive elements — buttons, links, cards.
-  const HOVER_SELECTOR = 'a, button, [role="button"], .exp-card, .case-card, .cert-card, .proof-card, .cs-screen, .cs-gallery-item, input, textarea';
-  document.addEventListener('mouseover', (e) => {
+  }
+  function onMouseLeaveDoc() { document.body.classList.add('cursor-hidden'); }
+  function onMouseEnterDoc() { if (hasPositioned) document.body.classList.remove('cursor-hidden'); }
+  function onMouseOver(e) {
     if (e.target.closest && e.target.closest(HOVER_SELECTOR)) ring.classList.add('is-hovering');
-  });
-  document.addEventListener('mouseout', (e) => {
+  }
+  function onMouseOut(e) {
     const stillInside = e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest(HOVER_SELECTOR);
     if (e.target.closest && e.target.closest(HOVER_SELECTOR) && !stillInside) ring.classList.remove('is-hovering');
-  });
+  }
+  function onMouseDown() { dot.classList.add('is-clicking'); ring.classList.add('is-clicking'); }
+  function onMouseUp() { dot.classList.remove('is-clicking'); ring.classList.remove('is-clicking'); }
 
-  // Click: quick shrink in, then the CSS's overshoot easing bounces it
-  // back out on release — see .cursor-ring's base transition in cursor.css.
-  window.addEventListener('mousedown', () => { dot.classList.add('is-clicking'); ring.classList.add('is-clicking'); });
-  window.addEventListener('mouseup', () => { dot.classList.remove('is-clicking'); ring.classList.remove('is-clicking'); });
+  function addAllListeners() {
+    window.addEventListener('mousemove', onMouseMove, { passive: true });
+    document.addEventListener('mouseleave', onMouseLeaveDoc);
+    document.addEventListener('mouseenter', onMouseEnterDoc);
+    document.addEventListener('mouseover', onMouseOver);
+    document.addEventListener('mouseout', onMouseOut);
+    window.addEventListener('mousedown', onMouseDown);
+    window.addEventListener('mouseup', onMouseUp);
+  }
+  function removeAllListeners() {
+    window.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseleave', onMouseLeaveDoc);
+    document.removeEventListener('mouseenter', onMouseEnterDoc);
+    document.removeEventListener('mouseover', onMouseOver);
+    document.removeEventListener('mouseout', onMouseOut);
+    window.removeEventListener('mousedown', onMouseDown);
+    window.removeEventListener('mouseup', onMouseUp);
+  }
 
-  const tick = () => {
+  function tick() {
     ringX += (mouseX - ringX) * RING_EASE;
     ringY += (mouseY - ringY) * RING_EASE;
     ringWrap.style.setProperty('--cx', `${ringX}px`);
     ringWrap.style.setProperty('--cy', `${ringY}px`);
-    requestAnimationFrame(tick);
-  };
-  requestAnimationFrame(tick);
+    rafId = requestAnimationFrame(tick);
+  }
+
+  // Public API: a real suspend, not a visual mask. Removes every
+  // listener outright and cancels the animation frame loop so nothing
+  // is computing or dispatching while suspended — not just hidden with
+  // opacity while still running underneath. Called by the password
+  // gate (or anything else that opens a true modal) while it's open.
+  function suspend() {
+    if (suspended) return;
+    suspended = true;
+    removeAllListeners();
+    if (rafId !== null) {
+      cancelAnimationFrame(rafId);
+      rafId = null;
+    }
+    ring.classList.remove('is-hovering', 'is-clicking');
+    dot.classList.remove('is-clicking');
+    document.body.classList.add('cursor-hidden');
+    // Full unmount, not a hide: actually removed from the document.
+    // An element that doesn't exist in the DOM cannot render above
+    // anything, cannot be hit-tested, cannot be part of any stacking
+    // context — there is no stronger guarantee than this.
+    if (dotWrap.isConnected) dotWrap.remove();
+    if (ringWrap.isConnected) ringWrap.remove();
+  }
+
+  function resume() {
+    if (!suspended) return;
+    suspended = false;
+    if (!dotWrap.isConnected) document.body.appendChild(dotWrap);
+    if (!ringWrap.isConnected) document.body.appendChild(ringWrap);
+    addAllListeners();
+    if (hasPositioned) document.body.classList.remove('cursor-hidden');
+    rafId = requestAnimationFrame(tick);
+  }
+
+  window.portfolioCursor = { suspend, resume };
+
+  addAllListeners();
+  rafId = requestAnimationFrame(tick);
 })();

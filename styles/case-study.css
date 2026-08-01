@@ -29,8 +29,30 @@ body.cs-body { opacity: 0; animation: cs-page-in 450ms ease-out forwards; }
 /* ---------- Back link — reuses .btn.btn-ghost exactly, just adds the
    page-specific top spacing and a reversed arrow ---------- */
 .cs-back-wrap { padding: 40px 0 0; }
+.cs-back:hover .btn-icon-fill,
+.cs-back:focus-visible .btn-icon-fill { transform: translateX(-3px); }
 /* Back link now uses a real left-pointing icon asset (see below), no
    rotation transform needed. */
+
+/* The text block (label, heading, paragraphs) intentionally uses the
+   same 24px inset as the homepage's own .eyebrow-row — matching the
+   homepage's real heading position exactly, per explicit request. The
+   flow-strip image below is a different kind of content and keeps its
+   own full-width treatment; it isn't meant to align with the text. */
+.cs-flow-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-inline: var(--space-6);
+  align-items: flex-start;
+  /* Pulls this block up from .cs-flow's 48px outer gap to 16px —
+     matching the label-to-heading gap above it — while leaving the
+     48px gap to the flow-strip image below completely untouched
+     (margin-top only affects this element's top side). Internal
+     gap between paragraphs is a separate, tighter 12px — genuinely
+     compact, reading as one block rather than three, per the request. */
+  margin-top: calc(var(--space-8) * -1);
+}
 
 /* ---------- Hero meta line (year · company) — reuses .exp-dates'
    exact text properties via that same class in the markup; this just
@@ -68,7 +90,7 @@ body.cs-body { opacity: 0; animation: cs-page-in 450ms ease-out forwards; }
 /* A plain flowing section — typography and whitespace only, no
    surface, no border, no shadow. This is the default for most of the
    page now; .cs-card is the exception, not the rule. */
-.cs-flow { display: flex; flex-direction: column; gap: 24px; }
+.cs-flow { display: flex; flex-direction: column; gap: 48px; }
 
 /* ---------- Layout grids (structure only) ---------- */
 
@@ -78,6 +100,7 @@ body.cs-body { opacity: 0; animation: cs-page-in 450ms ease-out forwards; }
 .cs-media { background: var(--surface-media); border-radius: var(--r-lg); display: flex; align-items: center; justify-content: center; overflow: hidden; }
 .cs-media-hero { aspect-ratio: 16/9; }
 .cs-media svg { width: 22%; height: 22%; color: var(--ink-400); }
+.cs-media img { width: 100%; height: 100%; object-fit: contain; display: block; }
 
 /* ---------- Design system swatches ---------- */
 .cs-swatch-row { display: flex; gap: 16px; flex-wrap: wrap; }
@@ -89,6 +112,7 @@ body.cs-body { opacity: 0; animation: cs-page-in 450ms ease-out forwards; }
    These are image placeholders, not content cards — they flow inside
    a plain section, not wrapped in an outer bordered container. */
 .cs-screens-grid, .cs-gallery-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; }
+
 .cs-screen, .cs-gallery-item {
   background: var(--surface-media);
   border-radius: var(--r-lg);
@@ -118,7 +142,7 @@ body.cs-body { opacity: 0; animation: cs-page-in 450ms ease-out forwards; }
 .cs-meta-item { display: flex; flex-direction: column; gap: 8px; }
 .cs-meta-icon { display: block; width: 20px; height: 20px; flex-shrink: 0; }
 .cs-meta-label { font-family: var(--font-figtree); font-weight: 500; font-size: 16px; line-height: 32px; color: var(--ink-600); margin: 0; }
-.cs-meta-text { font-family: var(--font-figtree); font-weight: 500; font-size: 16px; line-height: 24px; color: var(--ink-700); margin: 0; max-width: 720px; }
+.cs-meta-text { font-family: var(--font-figtree); font-weight: 500; font-size: 16px; line-height: 24px; color: var(--ink-700); margin: 0; max-width: 720px; text-wrap: pretty; }
 
 /* Bullet lists inside a .cs-box get hairline dividers between rows
    instead of a plain gap */
@@ -126,6 +150,37 @@ body.cs-body { opacity: 0; animation: cs-page-in 450ms ease-out forwards; }
 .cs-list-box .exp-bullets li { padding: 8px 0; border-bottom: 1px solid var(--line-guide); }
 .cs-list-box .exp-bullets li:first-child { padding-top: 0; }
 .cs-list-box .exp-bullets li:last-child { padding-bottom: 0; border-bottom: none; }
+
+/* ---------- Real product screens: horizontally-scrollable flow strip.
+   Used where the source asset is a single wide composite of several
+   screens in sequence — scrolling at a readable height beats
+   squeezing every screen down to illegible size inside the 960px
+   column. ---------- */
+.cs-flow-strip {
+  border-radius: var(--r-lg);
+  background: var(--surface-media);
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+.cs-flow-strip img {
+  display: block;
+  height: 400px;
+  width: auto;
+  max-width: none;
+}
+.cs-flow-strip::-webkit-scrollbar { height: 6px; }
+.cs-flow-strip::-webkit-scrollbar-track { background: transparent; }
+.cs-flow-strip::-webkit-scrollbar-thumb { background: var(--line-tag); border-radius: 3px; }
+
+/* Employee Management's source asset is a tall grid, not a horizontal
+   strip — display at full column width instead of scrolling. */
+.cs-grid-image {
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  background: var(--surface-media);
+}
+.cs-grid-image img { display: block; width: 100%; height: auto; }
 
 /* ---------- Previous / Next — redesigned as a floating pill,
    matching the same rgba(254,254,254,.5) surface as the site nav ---------- */

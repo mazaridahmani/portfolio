@@ -1735,6 +1735,1127 @@ the button text is unchanged (no layout shift from the old sprite
 icons), and hover/typography on the buttons themselves is otherwise
 untouched.
 
+## Ghost button interaction redesigned (See my work + reused elsewhere)
+
+Searched Mobbin first — "minimal secondary ghost button hover with
+subtle background reveal and icon movement" surfaced Phantom, Square,
+Framer, and **COLLINS** specifically, a design studio renowned for
+exactly this kind of restrained, bespoke micro-interaction. Used as the
+reference rather than defaulting to a generic hover.
+
+The old `.btn-ghost:hover` was genuinely generic: flat `--line-guide`
+gray background, and it reused the *card's* -4px lift and shadow
+verbatim rather than having its own scale-appropriate treatment.
+Rebuilt it as its own considered interaction:
+
+- **Background**: reveals `--card-bg` (near-white, #fefefe) instead of
+  flat gray — reads as a soft surface lifting off the page rather than
+  a color swap.
+- **Border**: transparent → `--line-tag` (#ebebeb), emerging rather
+  than snapping in.
+- **Elevation**: a new, purpose-built `--shadow-btn-hover` token —
+  softer and smaller-spread than `--shadow-card-hover`, scaled to a
+  compact button rather than reusing the large-card shadow.
+- **Lift**: 2px, not 4px — proportional to the element's own size
+  rather than copying the card interaction wholesale.
+- **Timing**: 220ms specifically for ghost buttons (the shared `.btn`
+  base sits at 250ms) — a deliberate, considered choice within the
+  requested 180–250ms window, not identical to every other button.
+- **Active/press state**: on mousedown, the lift releases back toward
+  rest and the background deepens slightly further — real press
+  feedback, not just an opacity dip.
+- **Focus-visible shares the same treatment as hover** (confirmed:
+  background matches exactly) *in addition to* the existing outline
+  ring — keyboard users get the same refined feedback as mouse users,
+  not a lesser version.
+- **Icon movement, direction-specific per button** rather than one
+  generic nudge applied everywhere: "See my work" (down arrow) nudges
+  down on hover, "Back to Top" (up arrow) nudges up, "Back to
+  Portfolio" (left arrow) nudges left — each reinforcing what the
+  button actually does. This is the "reuse where appropriate" the
+  request asked for: same interaction *language* (timing, easing,
+  distance), applied contextually rather than copy-pasted identically.
+
+Since `.btn-ghost` is the shared base class, this automatically applies
+consistently to all three buttons across all three pages, not just the
+one originally called out.
+
+Verified in the live build: 220ms transition confirmed on all three;
+background/border/shadow/lift all match the designed values exactly;
+icon transform confirmed in the correct axis and direction for each of
+the three buttons individually (`translateY(+3)`, `translateY(-3)`,
+`translateX(-3)`); active state confirmed to un-lift and deepen the
+background; focus-visible confirmed to trigger the identical background
+as hover while keeping the outline ring; zero failed requests, zero
+console errors on any of the three pages.
+
+## Icon color sync + vertical movement removed
+
+**Icon color**: the previous round used `<img src="...svg">` for these
+three icons, which is a real, hard technical limitation — an `<img>`'s
+internal fill can never respond to CSS `color`, no matter what
+transition is applied to the parent. The only correct fix is inlining
+the SVG markup directly in the HTML with `fill="currentColor"` instead
+of the file's original hardcoded hex (`#101114`/`#878787`). Did exactly
+that and nothing else — same `d` path data, same `viewBox`, same
+`fill-rule`/`clip-rule`, copied verbatim from the source files; only the
+`fill` attribute itself changed. This is a deliberate, explicit update
+to the "use the file exactly as provided" instruction from two rounds
+ago — this round's own explicit requirement ("the icon should follow
+the exact same color transition as the text... do not leave the icon
+with a fixed color") isn't achievable any other way, so implementing it
+correctly requires this specific, minimal change.
+
+Because the icon now inherits `color` from its own `.btn-ghost`
+parent — the same element whose `color` already transitions at 220ms
+ease-out — the icon's rendered color is mathematically tied to the
+text color already; no separate color-transition rule was even needed.
+Verified directly: icon `fill` computes to the exact same RGB value as
+the button's `color` at both rest and hover, on all three buttons.
+
+**Icon movement**: removed all vertical translation. "See my work" and
+"Back to Top" (a down-pointing and an up-pointing icon respectively —
+translation in either icon's own pointing direction would have meant
+vertical movement, which is now explicitly disallowed) switched to a
+gentle `scale(1.05)` instead — confirmed via the computed transform
+matrix that this is *pure* scale with zero x/y translation.
+"Back to Portfolio" keeps its horizontal `translateX(-3px)` nudge,
+since horizontal movement was explicitly still allowed and it
+genuinely fits a left-pointing icon — confirmed via its own transform
+matrix showing pure horizontal translation with zero scale. Not a
+single uniform treatment forced onto all three regardless of fit;
+each keeps the micro-interaction that actually suits its own icon.
+
+Verified in the live build: icon color exactly equals text color at
+rest and after hover on all three buttons (not just visually close —
+identical computed RGB values); icon transform confirmed to contain no
+vertical component on the two scale-based icons and no scale component
+on the horizontal one; both the color and transform transitions run at
+the same 220ms ease-out. Zero failed requests, zero console errors on
+any of the three pages.
+
+## MPay case study — real screens implemented directly in the code
+
+Corrected course from the previous round per explicit feedback: this
+time implemented directly into `mpay.html`/`case-study.css`/
+`case-study.js`, not a document. Discovered mid-task that the section
+restructuring (Onboarding, Authentication, P2P Transfer, Bill Payments,
+eKYC, Employee Management, Design System, Reflection — all with fully
+written prose) was **already live in the file** from earlier work, just
+using hand-drawn placeholder icons instead of the real screens. Verified
+this directly via `view` rather than assuming, then focused the actual
+work on replacing every placeholder with a real image.
+
+**Images**: all 10 uploaded PNGs copied into
+`assets/case-study/mpay-screens/`, resized (flow composites to 640px
+display height, Design System pages to 1600px width) and optimized —
+2.4MB total across all 10, reasonable for a case study page.
+
+**Why no images were individually cropped**: checked via alpha-channel
+analysis whether individual phone frames within each wide composite
+could be reliably auto-detected and split apart — they can't; the
+gray backdrop is continuous across the whole canvas with no reliable
+gap between frames. Rather than risk a bad crop on content I couldn't
+visually verify, used each composite whole. This is *why* Onboarding
+and Authentication share the same image: the real asset for both
+literally contains the same screens (the page copy already
+acknowledged this — "a different problem from onboarding, even
+sharing its screens" — before this round even started).
+
+**New components added** (`case-study.css`): `.cs-flow-strip`
+(horizontally-scrollable container for the wide flow composites — a
+readable 400px display height, scrolled rather than squeezed into
+960px), `.cs-grid-image` (Employee Management's tall grid composite,
+shown at full column width), `.cs-ds-page`/`.cs-ds-pages` (Design
+System pages, each its own bordered container, stacked). Removed the
+now-fully-superseded placeholder CSS (`.cs-flow-step`,
+`.cs-flow-connector`, `.cs-ds-showcase`) rather than leaving it as dead
+weight — also had to resolve a class-name collision I introduced
+mid-edit (two conflicting `.cs-flow-strip` definitions).
+
+**Hero image**: used the real P2P Transfer composite, cropped via CSS
+`object-fit: cover; object-position: left center` rather than
+pre-cropping the source file — this crops only the *display*, non-
+destructively, so it's trivially adjustable later. Flagging honestly:
+because the source is a wide multi-screen strip and the hero slot is a
+16:9 landscape frame, this shows roughly the first few screens rather
+than a single isolated dashboard view. Changing the hero container's
+own aspect ratio to fit a single portrait screenshot better was ruled
+out — that would be a layout change, which was explicitly out of
+scope this round.
+
+**Real gap disclosed, not papered over**: the file named `Colours.png`
+turned out to actually contain the Typography page's content (verified
+by looking at it, not trusting the filename) — no real Colors/palette
+page was actually provided. Rather than fabricate one or silently
+mislabel the Typography image as Colors, the Design System section
+now shows the 5 real pages actually provided, with a visible on-page
+note explaining the gap.
+
+**A real bug found and fixed**: the scroll-reveal `IntersectionObserver`
+used `threshold: 0.15` — requiring 15% of a target's *own total area*
+to be visible simultaneously. The new Design System image stack is
+~7,540px tall, and 15% of that (~1,131px) can never fit inside any
+normal viewport — so that section could never trigger, no matter how
+it was scrolled. Confirmed this by testing gradual scroll (16/17
+firing) vs. a direct jump to the bottom (correctly showing fewer, since
+IntersectionObserver requires elements to actually pass through the
+viewport). Fixed by switching to `threshold: 0` (any pixel visible),
+which works regardless of element height and is shared code — also
+benefits `tatheer.html` for any future tall content there.
+
+Verified in the live build: all 17 images load with zero failed
+requests; all 17 reveal sections now confirmed to trigger correctly on
+real gradual scroll; page structure check on the correct content guide
+(not the texture-band's separate small guide, which a naive
+`querySelector` first grabbed) shows exactly 10 sections / 19 dividers
+/ 10 spacers — the precise expected count for the established divider
+rhythm across 9 section-to-section transitions plus the closing
+sequence; mobile flow-strip confirmed horizontally scrollable
+(`overflow-x: auto`); `tatheer.html` and `index.html` both confirmed
+completely unaffected, including by the shared JS fix.
+
+## MPay flow images swapped to new SVG exports
+
+Straightforward content swap this round — Onboarding, P2P Transfer,
+Bill Payments, eKYC, and Create Employee images replaced with the new
+SVG exports, in the exact same containers, same `alt` text, same
+positions. Nothing else touched.
+
+**A real thing worth knowing about the files themselves**: these
+"SVGs" aren't pure vector — `eKYC.svg` in particular (7.8MB raw)
+contains embedded base64 PNG images inside `<image>` tags (the ID
+photo/camera-capture content, which is genuinely photographic, not
+vector-drawable). Ran `svgo` (lossless structural optimization —
+whitespace, precision, redundant markup, zero visual change) on all
+five before using them: 10-47% smaller depending on the file, except
+eKYC which only dropped ~10% since most of its weight is the embedded
+raster data svgo can't touch. Didn't go further than that — recompressing
+the embedded photos themselves would be a real modification to the
+provided content, which wasn't asked for.
+
+**One structural note, decided in the user's favor of "don't change
+anything," not overridden**: the new `Create_Employee.svg` is a wide
+horizontal strip (4800×1124) — a different native shape than the old
+PNG it replaces (2140×4173, a tall grid). Employee Management still
+uses the exact same `.cs-grid-image` container as before (full column
+width, `height: auto`) rather than switching it to match the other
+flow sections' `.cs-flow-strip` treatment, even though the new asset's
+shape would arguably fit that pattern better — changing the container
+would have been a structural change, which was explicitly ruled out
+this round. It renders undistorted, just proportionally shorter than
+before given the new source's shape. Flagged rather than silently
+changed.
+
+Design System's five images were not touched — they weren't part of
+this request.
+
+Verified in the live build: all 5 new SVGs (7 references, since
+Onboarding's asset is reused for Authentication and P2P Transfer's for
+the hero, same as before) load with zero failed requests; each renders
+at the exact same computed size/position as its PNG predecessor (flow
+strips still exactly 400px display height, hero still fills its 16:9
+box); mobile horizontal scroll still works; all 17 reveal sections
+still trigger; page structure unchanged (10 sections / 19 dividers /
+10 spacers, identical to before); `tatheer.html` and `index.html`
+unaffected. Removed the now-unreferenced old PNGs rather than leaving
+dead assets in the project.
+
+## Employee Management image sizing fixed
+
+Simple, correct fix rather than a special-case override: switched
+Employee Management from `.cs-grid-image` to `.cs-flow-strip` — the
+exact same container every other flow section already uses. This made
+sense once the new SVG turned out to be shaped like the others (a wide
+horizontal strip), not the old tall grid it replaced — flagged as a
+"this container might fit better" note in the previous round, and now
+implemented since it's the actual right answer here, not a workaround.
+
+`.cs-flow-strip` fixes display height at 400px and lets width scale
+proportionally (`height: auto` is never used, so distortion isn't
+possible), horizontally scrollable if the content is wider than the
+960px column — identical treatment, card style, radius, and background
+to every other flow image on the page.
+
+Verified directly rather than assumed: all 6 flow images (onboarding,
+p2p transfer, bill payments, eKYC, employee management, plus the
+authentication reuse) now report the exact same 400px display height;
+checked each one's natural aspect ratio against its displayed aspect
+ratio individually and confirmed they match exactly for all six — no
+stretching or distortion on any of them, including the one that
+changed. Mobile: all 6 strips confirmed to share identical
+`border-radius` (18px), background color, and `overflow-x: auto`
+scroll behavior. `tatheer.html` and `index.html` unaffected.
+
+## Hero cover replaced
+
+New SVG (`02.svg`) is exactly 1280×720 — a precise 16:9 match for the
+hero container's existing `aspect-ratio: 16/9`, so no container
+resizing was needed at all. Also contains embedded raster content
+(4 `<image>` elements), same as the flow SVGs from previous rounds;
+ran the same lossless `svgo` pass (negligible size change here, ~0.1%,
+since nearly all its weight is the embedded image data svgo can't
+touch).
+
+**The real fix**: switched the hero's `object-fit` from `cover` to
+`contain`. `cover` (used previously to crop a slice out of the old
+wide flow-strip composite) can crop; `contain` guarantees the full
+image is always visible with no cropping, which is what was asked for
+directly. Scoped narrowly — `.cs-media img` only ever applies to the
+hero, confirmed by checking it's the only place `.cs-media` is used on
+either case study page, so this didn't touch the flow-strip or Design
+System image containers at all.
+
+Verified in the live build, not assumed: displayed image size exactly
+equals container size at 950×534 (desktop) — meaning zero letterboxing
+was even needed, since the new asset's own aspect ratio already
+matches the container precisely. Confirmed `overflowX`/`overflowY`
+are `hidden` and, more importantly, that there's no actual scrollable
+content (`scrollWidth`/`scrollHeight` don't exceed `clientWidth`/
+`clientHeight`) — genuinely no internal scroll, not just a CSS
+property set. Checked natural-vs-displayed aspect ratio matches
+exactly (1.778 = 1.778) at mobile (390px), tablet (768px), and desktop
+(1440px) — same exact match at all three, confirming it scales
+proportionally without distortion at any size. All 17 reveal sections
+still trigger; `tatheer.html` and `index.html` unaffected.
+
+## Bill Payment removed, Create QR Code added, flow images updated
+
+**Missing file flagged**: the request mentioned 5 updated flows including
+"Create Employee," but only 4 files actually came through (Onboarding,
+P2P Transfer, eKYC, Create QR Code) — no Create Employee file was
+attached. Left Employee Management's image completely untouched rather
+than guessing, and kept its `.cs-flow-strip` sizing from the previous
+round exactly as instructed ("continue using its larger display size").
+
+**Bill Payment removed completely** — searched the whole file for every
+mention of "bill" (case-insensitive) before touching anything, found
+six: the section itself (eyebrow, heading, 3 paragraphs, image), the
+meta description, the Open Graph description, the hero lede, and one
+incidental mention inside the Reflection section's prose ("...transfer
+and bill payment flows"). All six updated or removed; confirmed
+afterward with the same search that zero references remain anywhere in
+the file. No anchor/nav links referenced Bill Payment, so nothing
+needed removing there.
+
+**Create QR Code added in Bill Payment's exact structural slot** — same
+`section-shell`, same divider/spacer sequence before and after, same
+`.cs-flow`/`.cs-flow-strip` pattern as every other section, so the
+established rhythm didn't need to change at all. New prose covers the
+user problem (paying someone without a saved beneficiary or shared
+bank), design thinking (fixed vs. open amount depending on context),
+UX decisions (reusing the same confirmation visual language), and flow
+rationale (minimizing taps since the counterpart is present and
+waiting) — matching the requested structure and the established
+writing voice.
+
+**Honest limitation on the new prose**: unlike the very first upload
+round, this round didn't come with an explicit list of individual
+screen names for Create QR Code, and the SVG's on-screen text is
+outlined vector paths, not extractable `<text>` elements — confirmed
+this directly (a text-extraction attempt returned zero results) rather
+than guessing at labels. Wrote the section around defensible, general
+reasoning about how QR payment requests work rather than inventing
+specific screen names I have no way to verify; the `alt` text is
+similarly general rather than fabricated.
+
+**Onboarding, P2P Transfer, and eKYC images updated** — same `svgo`
+lossless-optimization pass as previous rounds (10-30%+ smaller
+depending on the file, except eKYC which is still large since most of
+its weight is embedded raster content, same as before). Files were
+overwritten in place under their existing names, so no HTML `src`
+changes were needed for these three — only Create QR Code's reference
+is new.
+
+Verified in the live build: all 17 images load with zero failed
+requests; section eyebrows read `Onboarding → Authentication → P2P
+Transfer → Create QR Code → eKYC → Employee Management → Design System
+→ Reflection` — Bill Payment confirmed absent, QR Code confirmed in
+its place; structure unchanged (10 sections / 19 dividers / 10
+spacers, identical count to before, since this was an in-place swap
+not a structural add/remove); every flow image — including Employee
+Management — still shares the identical 400px display height; mobile
+horizontal scroll still works; all 17 reveal sections trigger;
+`tatheer.html` and `index.html` unaffected.
+
+## MPay flow images refreshed again (all 5, including Employee Management this time)
+
+Pure asset swap, no HTML changes required since the new files were
+copied in under the exact same filenames the page already referenced —
+confirmed via `naturalWidth`/`naturalHeight` that all 5 are genuinely
+the new content, not stale cache (e.g. `create-qr-code-flow.svg` now
+reports 3030×1124, matching the newly-uploaded file exactly, not the
+previous round's 2430×1124).
+
+Same `svgo` lossless pass as prior rounds. Old files were overwritten
+in place rather than left alongside new ones — confirmed via a
+filesystem check that no stray/duplicate/versioned assets remain in
+`assets/case-study/mpay-screens/`.
+
+Verified in the live build: all 17 images load with zero failed
+requests; every flow image — Onboarding, P2P Transfer, Create QR Code,
+eKYC, and Employee Management — still displays at the identical 400px
+height (Employee Management's larger sizing from two rounds ago
+confirmed intact, not reverted); section order unchanged with Create
+QR Code still in its position between P2P Transfer and eKYC; page
+structure identical (10 sections / 19 dividers / 10 spacers); mobile
+horizontal scroll still works; all 17 reveal animations still trigger;
+`tatheer.html` and `index.html` confirmed unaffected.
+
+## Section-header spacing matched to homepage, QR code refreshed, section reordered
+
+**Spacing fix**: checked the homepage's actual "Featured Case Studies"
+structure directly rather than guessing at values — its label and
+heading sit inside `.eyebrow-row` (`gap: 16px`), and that group sits
+alongside the content below as siblings inside `.section-shell`
+(`gap: 48px`). The case study's `.cs-flow` had been using one flat
+`gap: 24px` for everything — label-to-heading, heading-to-paragraph,
+and paragraph-to-paragraph all identical, matching neither of the
+homepage's two real values. Fixed by reusing the homepage's own
+`.eyebrow-row` class verbatim (wrapping each section's label+heading
+pair, exactly as the homepage already does it) and changing `.cs-flow`
+to `gap: 48px` to match `.section-shell`. Applied to all 8 sections
+that use this pattern on the page.
+
+One deliberate decision worth noting: `.eyebrow-row` carries its own
+`padding-inline: 24px` on the homepage, which insets the label+heading
+slightly relative to the content below it there (the homepage's
+`.case-grid` has no matching padding). Kept that padding rather than
+stripping it out — the request was to match the homepage's spacing
+*exactly*, and that inset is part of the real pattern, not an
+accident.
+
+**Scope note**: this was applied fully to `mpay.html`, the page this
+whole thread of work has been about. `tatheer.html` uses the same
+`.cs-flow` class for its own older-style sections, so it now
+automatically gets the corrected 48px heading-to-content gap too, but
+its label+heading pairs weren't individually restructured into
+`eyebrow-row` groups — that page hasn't been part of any of the recent
+requests, so didn't assume that scope without being asked.
+
+**Create QR Code image refreshed** — new upload, same optimization
+pass as every previous round, replaced in place under the same
+filename (no HTML changes needed for the swap itself).
+
+**Section reordered**: Create QR Code and eKYC's content swapped
+between their two `section-shell` wrappers, keeping every divider and
+spacer exactly where it already was — the simplest way to reorder two
+adjacent sections without touching the established rhythm at all.
+Order is now Onboarding → Authentication → P2P Transfer → eKYC →
+Create QR Code → Employee Management, with Create QR Code confirmed
+directly before Employee Management as requested.
+
+Verified in the live build: all 8 `.eyebrow-row` elements report
+exactly `16px` gap and all `.cs-flow` containers report exactly `48px`
+gap (checked as sets across all instances — a single consistent value
+each, not spot-checked on one and assumed for the rest); new QR image
+loads correctly; section order confirmed via direct DOM query; page
+structure unchanged (10 sections / 19 dividers / 10 spacers); mobile
+padding override still applies; all 17 reveal sections still trigger;
+`tatheer.html` and `index.html` unaffected.
+
+## Alignment bug fixed, Design System section removed entirely
+
+**The real bug, correctly diagnosed this time**: the previous round's
+`.eyebrow-row` reuse brought along its 24px horizontal padding, which
+is genuinely intentional on the homepage (the case-grid below it has
+no matching inset there) but wrong here — every case study paragraph
+and image has zero horizontal padding, so the heading ended up
+indented 24px relative to its own body text. Confirmed this precisely
+before fixing: label, heading, paragraph, and image-wrapper all
+measured `x: 165` (identical) after the fix — checked directly via
+bounding boxes, not eyeballed.
+
+Fixed with a scoped override (`.cs-flow .eyebrow-row { padding-inline:
+0; }`, including the mobile breakpoint) rather than editing the shared
+class directly — confirmed the homepage's own `.eyebrow-row` still
+reports its original 24px padding, completely untouched. The vertical
+spacing fix from last round (16px label→heading, 48px heading→content)
+is preserved exactly.
+
+**Design System section removed completely** — both its text
+sub-section and its five-image showcase sub-section, plus the extra
+divider/spacer sequence that sat between them, keeping exactly one
+divider/spacer sequence between Employee Management and Reflection
+(the same rhythm every other section-to-section transition on the page
+uses). Removed the now-orphaned five Design System PNG assets from
+disk, and the CSS rules that only existed to display them
+(`.cs-ds-page`, `.cs-ds-pages`) — confirmed both were completely unused
+anywhere in either case study page before deleting.
+
+**Found and fixed a real, unrelated bug while in this code**: a stray
+`*/` with no matching opening comment — a leftover from an earlier
+round's edit that had silently dropped the opening line, leaving
+invalid CSS sitting right above the Previous/Next pill styles. Restored
+the proper comment. Confirmed the pill still renders with its correct
+`rgba(254,254,254,0.5)` background after the fix.
+
+Verified in the live build: alignment confirmed via direct
+measurement, not visual guess; vertical spacing unchanged; "Design
+System" text and all `design-system-*` image references confirmed
+absent from the page entirely; section order now `Onboarding →
+Authentication → P2P Transfer → eKYC → Create QR Code → Employee
+Management → Reflection`; structure math checks out exactly (8
+sections / 15 dividers / 8 spacers, matching the same formula the page
+has followed since the divider-rhythm fix several rounds back);
+homepage's own spacing/padding confirmed byte-for-byte unchanged; all
+15 remaining reveal sections trigger; zero failed requests, zero
+console errors on any of the three pages.
+
+## Alignment and paragraph spacing corrected (previous round misread the request)
+
+The previous round's fix was backwards — it zeroed out the horizontal
+padding to make the text align with the image, when what was actually
+wanted was for the text to match the *homepage's own heading position*,
+with the image explicitly permitted to keep its own separate width.
+Reverted that override.
+
+**Alignment**: measured the homepage's real "Featured Case Studies"
+heading position directly (`x: 189`) and used that as ground truth
+rather than assuming. New `.cs-flow-text` wrapper (holding the
+paragraphs, using the same `--space-6` token — 24px — that the
+homepage's own `.eyebrow-row` already uses for its padding, not a new
+value) keeps the label, heading, and every paragraph at that exact
+`x: 189` position. The flow-strip image intentionally stays outside
+this wrapper at its own `x: 165`, per the explicit "the image should
+keep its own consistent content width" instruction.
+
+**Paragraph spacing**: consecutive paragraphs within a section now sit
+24px apart (via `.cs-flow-text`'s own gap) instead of the previous
+round's flat 48px applied to every sibling — they read as one
+continuous block now, not three isolated ones. The 48px gap is kept
+only for the two real structural transitions: label+heading group →
+text block, and text block → image, which is exactly the "heading to
+content below" relationship the homepage itself uses.
+
+Verified in the live build, not assumed: checked all 7 sections
+individually (not just one) — label, heading, and every paragraph in
+each report the identical `x: 189`, matching the homepage's own
+heading position exactly. Paragraph-to-paragraph gap confirmed at
+24px. The 48px transitions were first measured at what looked like
+72px — traced this to the scroll-reveal animation not having fully
+settled at measurement time (its own `translateY(24px)` still
+partially applied) rather than assuming it was a real bug; re-measured
+with reveals forced to their settled state and confirmed exactly 48px.
+Mobile padding confirmed still applies (24px). Full-page structure
+unchanged (8 sections / 15 dividers / 8 spacers, same as before this
+round — nothing structural changed here, only spacing/alignment). All
+15 reveal sections still trigger; `tatheer.html` and `index.html`
+unaffected.
+
+## Heading-to-body-text gap tightened, hero cover replaced again
+
+**Spacing**: checked the homepage's real "main heading to description"
+reference this time — the hero section, where `.hero-inner` uses
+`gap: 24px` between the heading and its lede paragraph. Previously
+the case study's heading-to-text gap was 48px (correct for the
+"heading group to content grid" relationship elsewhere, but not this
+one). Tightened specifically to 24px using a negative top-margin on
+`.cs-flow-text` sized to the same `--space-6` token already in use —
+this pulls the text block closer to the heading without touching the
+separate 48px gap to the flow-strip image below it, since that
+wasn't part of this request.
+
+Verified directly per section rather than assumed: all 7 sections
+report a heading-to-text gap of ~24px (Onboarding, Authentication,
+eKYC, Create QR Code, and Employee Management measured exactly 24.0;
+P2P Transfer measured 23.7, a sub-pixel difference from text-wrapping
+height rounding, not a real discrepancy), while the text-to-image gap
+independently still measures ~48-51px on every section that has an
+image — confirming the two gaps are genuinely decoupled and only the
+intended one changed.
+
+**Hero cover replaced again** — same 1280×720 dimensions as the
+previous cover, same optimization pass, same filename (no HTML changes
+needed). Confirmed the new file's natural size, that it fills its
+container exactly at 950×534 on desktop and 348×196 on mobile — both
+exactly 16:9, `object-fit: contain` still correctly guaranteeing no
+cropping.
+
+Zero failed requests, zero console errors on any of the three pages.
+
+## Hero cover replaced (re-attached update)
+
+Checked first whether this was actually a new file rather than
+assuming — hashed it against the current cover before touching
+anything; genuinely different content, not a re-upload of the same
+asset. Same 1280×720 dimensions as before, same optimization pass,
+same filename in place (no HTML changes needed).
+
+Verified: new file's natural size confirmed, fills its container
+exactly at 950×534 with `object-fit: contain` still guaranteeing no
+cropping, zero failed requests, zero console errors.
+
+## Hero cover replaced (latest version)
+
+Confirmed via checksum that the new upload was genuinely different
+content before replacing anything, not a re-send of the same file.
+Same 1280×720 dimensions as every previous cover, so no CSS or layout
+change was needed — same optimization pass, same filename, no HTML
+changes required for the swap.
+
+Verified: new file's natural size confirmed 1280×720; fills its
+container exactly at 950×534 (desktop) and 348×196 (mobile), both
+precisely 16:9 with `object-fit: contain` still guaranteeing no
+cropping; zero failed requests, zero console errors.
+
+## Paragraph rhythm properly tiered, case study reframed as curated highlights
+
+**Spacing, take three**: the user's diagnosis used "margin-bottom," but
+the actual mechanism was flex-gap (paragraphs have zero margin — a
+global `p { margin: 0; }` reset already handles that). Regardless of
+the exact CSS property, the real ask was clear: build a genuine
+3-tier hierarchy rather than treating every gap the same. Implemented
+using only existing spacing tokens:
+- Label → heading: 16px (unchanged, `.eyebrow-row`'s own gap)
+- Heading → first paragraph: 16px (pulled down from the previous
+  round's 24px via a `margin-top: calc(var(--space-8) * -1)` — matches
+  the label-to-heading gap exactly, as the request's own diagram
+  implied by using "small gap" for both)
+- Paragraph → paragraph: 12px (`--space-3`) — genuinely compact,
+  reading as one block rather than three
+- Text block → flow image: untouched at 48px, since this gap wasn't
+  part of the complaint and stayed independently verified unchanged
+
+Verified per section: all 7 sections report heading-to-text at ~16px
+and paragraph-to-paragraph at ~12px (Onboarding's heading wraps to two
+lines, giving a very slightly different absolute pixel reading — 15.2/
+11.6 vs the flat 16.0/12.0 everywhere else — expected sub-pixel
+variance from that, not a real inconsistency).
+
+**Curated-highlights framing added** — two touchpoints, opening and
+closing, rather than one heavy disclaimer:
+- The Overview card (the very first thing read after the hero) now
+  states directly: "This case study walks through six representative
+  flows — the full product is considerably larger."
+- Reflection gets a new closing paragraph naming what's deliberately
+  left out — additional flows, edge-case handling, and the design
+  system — framed as a deliberate curatorial choice, not an omission.
+
+**A real accuracy bug caught while in this content**: Reflection's
+heading and body still said "seven flows," left over from before Bill
+Payments was removed and Create QR Code was added — the actual count
+has been six for several rounds now. Fixed both the heading and the
+body text; searched the whole file afterward to confirm no other
+stale "seven" references remain.
+
+Verified in the live build: Reflection's new third paragraph maintains
+the same 12px compact rhythm as the other two; page structure unchanged
+(8 sections / 15 dividers / 8 spacers); all 15 reveal sections still
+trigger; zero failed requests, zero console errors on any of the three
+pages.
+
+## Platform → App, Authentication removed, Reflection breathing room added
+
+**"Platform" → "App"**: found all 6 occurrences (meta description, OG
+description, Twitter description, hero lede, Overview card, Reflection)
+before touching anything, all lowercase mid-sentence — replaced each
+preserving sentence-position casing. Confirmed zero remaining
+case-insensitive matches anywhere in the file afterward.
+
+**Authentication section removed** — same surgical approach as the
+Design System removal a few rounds back: deleted the section entirely
+and collapsed the extra divider/spacer pair down to exactly one between
+Onboarding and P2P Transfer, keeping the established rhythm intact.
+
+**Flagging rather than silently fixing**: removing Authentication drops
+the real flow count from six to five, but Overview and Reflection both
+still say "six" — left both untouched, since the explicit instruction
+this round was to keep Reflection's content exactly as-is and not
+modify anything else beyond the three listed changes. Noted this to
+the user directly rather than either quietly leaving a bug unmentioned
+or unilaterally overriding an explicit "don't modify" instruction.
+
+**Reflection's bottom spacing**: added `padding-bottom: 48px` to
+Reflection's `section-shell` specifically (inline, scoped to this one
+section only, the same way `padding-top` is already set per-section) —
+computed value confirmed at exactly 48px.
+
+Verified in the live build: section order now reads Onboarding → P2P
+Transfer → eKYC → Create QR Code → Employee Management → Reflection;
+"Authentication" and "platform" both confirmed absent anywhere in the
+page; structure math checks out exactly (7 sections / 13 dividers / 7
+spacers, matching the same formula the page has followed since the
+divider-rhythm fix many rounds back); all 13 remaining reveal sections
+trigger; zero failed requests, zero console errors; `tatheer.html` and
+`index.html` unaffected.
+
+## Employee Management and Reflection copy replaced
+
+Both sections' text replaced with the exact content provided —
+Employee Management's heading and all three paragraphs, Reflection's
+three paragraphs (its heading already matched the provided text
+verbatim, so no change was needed there). No HTML structure, classes,
+or images touched — the image's `alt` text was left as-is since it
+describes what's literally in the image, not the surrounding
+narrative framing, and wasn't part of what was asked to change.
+
+Verified in the live build: both headings and all paragraph text
+match the provided copy exactly; paragraph-to-paragraph spacing in
+both sections still measures the same 12px established two rounds
+ago (confirming the new, longer copy didn't disturb the rhythm);
+page structure unchanged (7 sections / 13 dividers / 7 spacers); all
+13 reveal sections still trigger; zero failed requests, zero console
+errors; `tatheer.html` and `index.html` unaffected.
+
+## Hero intro rewritten, "senior" removed, Schedule replaced with WhatsApp, balanced headings site-wide
+
+**Hero introduction and Contact lede**: text replaced exactly as given
+in both spots; confirmed "senior" no longer appears anywhere in the
+Contact lede.
+
+**Schedule → WhatsApp**: the "Book a 30-min intro call" placeholder
+link (previously `href="#"`, never a real destination) is now a real
+link to the official `wa.me/213541357667` URL, opening in a new tab
+with `rel="noopener noreferrer"` — matching how every other external
+link on this site is already handled. Small label above the button
+text changed from "Schedule" to "WhatsApp" (channel name, matching how
+"Email" labels its own row) since "Schedule" no longer describes what
+the row does; the larger action text is the exact "Chat on WhatsApp"
+requested. Kept the existing arrow icon rather than sourcing a new
+WhatsApp-branded one that wasn't provided.
+
+**Balanced heading wrapping**: added `text-wrap: balance` to every
+heading-level class site-wide — `.hero-heading`, `.section-heading`,
+`.case-title`, `.cert-name`, `.contact-heading` — this is the
+standards-based CSS property built specifically for preventing orphan
+words on wrapped headings, not a JS-based workaround. Applied once in
+the shared `main.css`, so it automatically covers the homepage and
+both case study pages without needing separate changes anywhere else —
+verified directly that `getComputedStyle().textWrap` reports `balance`
+on both `.hero-heading` and `.section-heading` on all three pages, not
+just the homepage.
+
+Verified in the live build: all four text/link changes confirmed
+exactly as requested; homepage structure unchanged (still 22
+`.column-guide` children); copy-to-clipboard still functional; all
+reveal sections on both case study pages still trigger (13/13 on
+MPay, 7/7 on Tatheer); zero failed requests, zero console errors on
+any of the three pages.
+
+## Body text orphan-word prevention added site-wide
+
+`text-wrap: balance` (used for headings last round) is specifically
+designed for short text — browsers cap it at roughly 4-6 lines for
+performance, making it the wrong tool for flowing paragraphs. CSS Text
+Level 4 provides the actual correct property for this: `text-wrap:
+pretty`, purpose-built for body copy — it improves line-breaking to
+avoid orphans without the line-count ceiling `balance` has.
+
+Applied to every real body-text class site-wide: `.hero-lede` (the
+single highest-impact one, since it's reused for the homepage hero,
+the Contact lede, and every case study paragraph via `.cs-flow-text`),
+`.exp-bullets p`, `.case-desc`, `.contact-lede`, and `.cs-meta-text`.
+Left short label/caption-level text (`.cert-issued`, `.proof-views`,
+tags) alone — those rarely span multiple lines, so the property would
+be a no-op there; scoped this to genuine multi-line body copy rather
+than blanket-applying it everywhere.
+
+Verified in the live build: `getComputedStyle().textWrap` reports
+`pretty` on every one of the five classes, confirmed directly rather
+than assumed — including on both case study pages, since `.hero-lede`
+and `.cs-meta-text` are shared classes that automatically propagate
+there from the same rule. Homepage structure unchanged; all reveal
+animations on both case studies still trigger; zero failed requests,
+zero console errors on any of the three pages.
+
+## Password gate implemented on both case study pages
+
+Researched Mobbin first — 1Password and Dropbox for the auth-UI craft
+bar, Analogue Agency and Atlas Card for the premium-portfolio gate
+aesthetic (centered card, dark blurred backdrop, minimal copy). Built
+as a shared component (`styles/gate.css`, `scripts/gate.js`) included
+on both `mpay.html` and `tatheer.html`, since "the Case Study page"
+wasn't scoped to just one — applying it consistently to both seemed
+safer than guessing which single page was meant.
+
+**Honesty note, stated plainly rather than skipped**: this is a soft,
+client-side gate. The case study markup is already present in the page
+behind the dialog — this politely asks an unlisted visitor for a
+password before work is publicly released, it does not protect
+anything truly sensitive. The user's own instruction to "store it in
+the code for now" already signals this is understood and intentional
+for this use case, not a security oversight.
+
+**Design**: every value in `gate.css` is a reused token — `--card-bg`,
+`--r-lg`/`--r-md`, `--shadow-card-hover`, the ink scale, `--color-error`
+— nothing new introduced. The dialog reuses `.btn.btn-dark` directly
+for Continue, matching every other primary button on the site exactly.
+
+**A real bug found through testing, not assumed fixed**: initial
+implementation used the HTML `hidden` attribute to dismiss the gate on
+success, but `.cs-gate`'s own `display: flex` (needed to center the
+dialog while open) outranks the `[hidden]` attribute's UA-stylesheet
+default of `display: none` in the normal CSS cascade — regardless of
+attribute vs. class, author styles beat the browser default. Result:
+the gate stayed interaction-blocking even after being marked "hidden."
+Caught this specifically by testing whether a click on content behind
+the gate actually succeeded after a correct password, not by checking
+visual/class state alone — the first version reported success on every
+check except the one that mattered. Fixed with an explicit
+`.cs-gate[hidden] { display: none; }` override, then re-verified the
+exact same click-through test now succeeds.
+
+Verified in the live build, end to end: gate opens with `blur(20px)`
+and a darkened backdrop, scroll disabled (`overflow-y: hidden`), input
+auto-focused; wrong password shows the inline error and triggers the
+shake, input clears and refocuses, form re-enables; correct password
+shows "Verifying…" with the button disabled, then genuinely removes
+the gate — confirmed by clicking through to previously-blocked content
+successfully, not just checking CSS classes; scroll restored; session
+flag set; reloading the same page skips the gate entirely; `tatheer
+.html` gates and unlocks independently with its own session flag;
+mobile dialog fits correctly within the viewport with margin; homepage
+completely unaffected (`#cs-gate` doesn't exist there, structure and
+requests unchanged). Zero failed requests, zero console errors on any
+page in any state.
+
+## Password gate — five UX/accessibility fixes
+
+No screenshot actually came through with this request, but the
+described symptom (ghosting specifically on large text behind the
+blur) matched a known, well-documented rendering issue precisely
+enough to diagnose without seeing it: I checked my own CSS and
+confirmed I was transitioning the `backdrop-filter` property itself
+(`transition: opacity 350ms ease-out, backdrop-filter 350ms ease-out`).
+Animating blur radius directly is a documented Chromium artifact
+source — the browser has to re-rasterize the backdrop at every
+intermediate blur value, and text underneath doesn't sample cleanly at
+partial radii. Fixed by keeping `backdrop-filter` constant at all times
+and transitioning only `opacity` — confirmed via computed style that
+`transition-property` is now just `opacity`, and `backdrop-filter`
+never changes value at all, before/during/after.
+
+**Pointer-events**: added an explicit `body.cs-gate-locked > *:not(.cs-gate)
+{ pointer-events: none; }` rule — belt-and-suspenders beyond the
+gate's own z-index layering. Verified directly, not assumed: confirmed
+`main`'s computed `pointer-events` is `none` while locked, and that a
+background element genuinely fails `:matches(':hover')` even when the
+real mouse is positioned directly over it.
+
+**Close button**: added top-right, styled with the same hover/focus
+language as every other icon-button on the site. Closing navigates to
+`index.html#work` — confirmed this is a real navigation, not a
+same-page dismiss that would reveal the gated content.
+
+**Password visibility toggle**: eye/eye-off icons inside the field,
+hand-drawn in the same stroke style as every other custom icon on this
+site. Confirmed the input's `type` genuinely toggles between
+`password`/`text`, the value is preserved across the toggle, and
+`aria-pressed`/`aria-label` update correctly.
+
+**Accessibility**: real focus trap, not just autofocus — tested both
+wrap boundaries directly (Shift+Tab from the true first element lands
+on the true last one, and vice versa), not just a single Tab press.
+Esc triggers the same "leave the page" behavior as the close button,
+confirmed via the resulting URL, not just an event-handler existing.
+Autofocus on the password input was already working from the previous
+round and re-confirmed still correct after this round's markup changes
+(the close button now precedes the input in DOM order, so this wasn't
+guaranteed to still hold without re-checking).
+
+Verified in the live build: all five fixes confirmed individually with
+direct checks rather than visual impression: constant backdrop-filter,
+blocked pointer-events, real navigation on close/Esc, working toggle
+with preserved value, and focus trap wrapping at both ends. Re-ran the
+full wrong-password and correct-password flows to confirm neither
+regressed; pointer-events correctly restored to `auto` after a
+successful unlock. Mobile layout confirmed for both new buttons. Zero
+failed requests, zero console errors on any page.
+
+## Password gate — investigated the pointer-events report, found a real gap
+
+Did the requested inspection thoroughly before changing anything:
+audited every `pointer-events` and `z-index` declaration across all
+stylesheets (`grep` confirmed no conflicting `pointer-events: auto`
+override anywhere, and nothing exceeds the gate's `z-index: 10000` —
+the custom cursor sits at `9999`, below it). Used
+`document.elementFromPoint()` — the real browser hit-testing API, not
+a Playwright abstraction — at multiple coordinates across the page,
+including after attempting to scroll while locked, and it consistently
+resolved to the backdrop/dialog, never to background content. Also
+drove a real mouse-move sequence over a background button and confirmed
+the custom cursor's own hover-reaction (`is-hovering`) never triggers.
+By every one of these direct, rigorous tests, the backdrop was already
+correctly blocking real interaction.
+
+**The real gap**: the custom cursor itself was still visibly moving
+over the blurred background while the gate was open. Nothing was
+actually clickable, but a cursor that still visually tracks and reacts
+to background content doesn't match "the cursor should interact only
+with the dialog" — and no real modal library (Radix, Headless UI,
+shadcn) runs a custom animated cursor over a disabled background at
+all; they just show the plain system cursor. Fixed by switching the
+custom cursor off entirely while the gate is open — background and
+dialog alike — restoring plain `cursor: auto`/`text` behavior.
+
+**Two real specificity bugs found and fixed while making this change**,
+both caught by testing computed styles directly rather than assuming
+the CSS did what it looked like it should:
+1. The first version of the fix scoped the cursor-restoration rule too
+   broadly (`body.cs-gate-locked.has-custom-cursor button`), which
+   matched the gate's *own* buttons too — its explicit `cursor: pointer`
+   was computing to `auto` on the close/submit buttons. Fixed by
+   scoping the restoration to `main` specifically (a sibling of `.cs-
+   gate`, not an ancestor of it), so it only ever touches background
+   content.
+2. After that fix, the gate's own buttons still computed to
+   `cursor: none` — a *different* rule was responsible: the original
+   site-wide `body.has-custom-cursor button { cursor: none }` (needed
+   elsewhere so the custom cursor can take over) still outranked the
+   gate's own `.cs-gate-close { cursor: pointer }` by specificity.
+   Fixed with a correctly-scoped, higher-specificity override
+   (`body.has-custom-cursor .cs-gate-close`, etc.) rather than reaching
+   for `!important`.
+
+Verified in the live build after both fixes: gate's own buttons
+(`close`, `toggle`, `submit`) all compute to `cursor: pointer`, the
+password input computes to `cursor: text`, a background link still
+correctly shows `cursor: auto` (not fighting for a custom cursor that
+no longer exists while locked); custom cursor opacity is `0` while
+locked and restored to `1` immediately after a successful unlock.
+Re-ran the full existing test suite afterward — hit-testing still
+blocks background content, focus trap still wraps correctly at both
+ends, wrong-password and correct-password flows both still work
+exactly as before. Zero failed requests, zero console errors on any
+of the three pages.
+
+## Password gate rebuilt on `inert` — the actual browser-native mechanism
+
+Stopped patching CSS and rebuilt the locking mechanism around the
+`inert` DOM attribute, per the explicit request. This is not a CSS
+trick — `inert` is a real browser attribute that makes an element and
+its entire subtree unclickable, unhoverable, and *unfocusable*, and
+hides it from the accessibility tree, all in one native mechanism with
+nothing for CSS specificity to undermine. It's what native `<dialog>`
+and every real modal library (Radix, Headless UI, shadcn) relies on or
+polyfills under the hood. Confirmed the test environment's Chromium
+(v141) is well past the support threshold before relying on it.
+
+Applied via JS to every direct child of `<body>` except the gate
+itself when the gate opens, removed on unlock. The gate markup was
+already the last element in `<body>` (not nested inside `<main>`), so
+it's already effectively portaled above the rest of the page in the
+DOM — `inert` is what actually makes that page unreachable, rather
+than relying on stacking/pointer-events alone.
+
+Verified this at a fundamentally deeper level than any previous round,
+specifically because the report was that CSS-level checks weren't
+enough:
+- `main.inert` (the browser's own resolved boolean property, not just
+  attribute presence) reports `true` while locked.
+- Attempted to **programmatically call `.focus()`** on a background
+  link directly — the browser refused, and focus stayed on the
+  dialog's input. This is the strongest possible confirmation
+  available: not "does a click get blocked," but "does the browser's
+  own focus engine consider this element focusable at all," and the
+  answer is no.
+- Ran a genuine mouse-move sequence directly over a real hover-animated
+  element (the back link, which lifts and gains a shadow on hover) and
+  confirmed its computed `transform` and `box-shadow` are byte-for-byte
+  identical before and after — not a class-state check, an actual
+  rendered-style comparison.
+- `document.elementFromPoint()` at the same coordinates still resolves
+  to the backdrop, consistent with previous rounds but now backed by a
+  stronger underlying mechanism.
+
+Then re-ran the entire existing feature set to confirm nothing
+regressed from the rewrite: body scroll lock, focus-trap wrap-around at
+both boundaries, wrong-password error handling, the password visibility
+toggle, successful unlock (confirmed `inert` is actually removed
+afterward, and a real click on previously-blocked content succeeds),
+and both the close button and Esc key navigating away correctly.
+Independently re-verified on `tatheer.html` as well, since it runs its
+own separate instance of the same script — confirmed `inert` applies
+and clears correctly there too. Zero failed requests, zero console
+errors on any of the three pages, in any state.
+
+## Custom cursor genuinely suspended, not just hidden
+
+The remaining gap, correctly diagnosed: `inert` fixed the actual page
+content, but the custom cursor's own `requestAnimationFrame` loop and
+`mousemove`/`mouseover`/`mouseout` listeners were still running the
+entire time — only masked with `opacity: 0`. Refactored `cursor.js`
+from a self-contained IIFE with inline listeners into one that exposes
+a real `window.portfolioCursor.suspend()`/`.resume()` API: every
+listener is now a named function (not an inline arrow), so
+`suspend()` can call `removeEventListener` on the exact same
+references and `cancelAnimationFrame` on the loop's own ID — a genuine
+teardown, not a flag the loop checks and skips. `resume()` re-attaches
+everything and restarts the loop. The gate calls `suspend()` on lock
+and `resume()` on unlock, guarded so it's a harmless no-op on devices
+where `cursor.js` never initialized in the first place (touch, reduced
+motion).
+
+Verified this is a real suspend, not a relabeled hide, using the
+strongest test available — checking whether the underlying custom
+properties the loop/listener write to ever change at all:
+- Moved the real mouse to two different positions while the gate was
+  locked and confirmed the dot's `--cx` custom property stayed
+  completely unset the entire time — the `mousemove` listener never
+  fired once, not "fired but was ignored."
+- Sampled the ring's `--cx` twice, 500ms apart, while suspended, and
+  confirmed the values were identical — if the rAF loop were still
+  running underneath the opacity mask, the ring would keep easing
+  toward the mouse position even while invisible; it didn't move at
+  all, confirming the loop had genuinely stopped.
+- After a successful unlock, ran the inverse test: moved the mouse
+  and confirmed `--cx` now updates immediately and correctly on every
+  move, the ring's position visibly converges over time again (the
+  easing loop restarted), and hovering a button correctly re-triggers
+  the hover-enlarge state — full functional restoration, not just a
+  visibility toggle back on.
+
+Removed the previous round's CSS-based `opacity: 0` override for the
+cursor elements — it's now redundant, since `suspend()` reuses the
+same pre-existing `cursor-hidden` class the "mouse left the window"
+state already used, rather than having two separate mechanisms
+nominally doing the same job.
+
+Re-ran the complete existing gate test suite afterward to confirm none
+of this regressed: `inert` still applies correctly, focus trap still
+wraps at both boundaries, wrong-password handling and the visibility
+toggle both still work, and the close button still navigates away
+correctly. Confirmed `window.portfolioCursor` is present and
+functioning identically on `tatheer.html` as well, since it runs its
+own independent copy of both scripts. Zero failed requests, zero
+console errors on any of the three pages.
+
+## Actual root cause found and fixed — cursor's default center position, not a stacking context bug
+
+Did the exact inspection requested — computed `z-index`, `transform`,
+`filter`, `backdrop-filter`, `opacity`, `isolation`, and `will-change`
+for the overlay, dialog, input, Continue button, and both cursor
+elements. Findings, reported plainly: `.cs-gate-dialog` does carry a
+non-`none` `transform` (part of its own entrance animation, creating
+its own stacking context, same category of thing found elsewhere in
+this project before) — but the overlay's `z-index: 10000` vs. the
+cursor's `z-index: 9999` are compared at the same level (both are
+direct children of `<body>`), so a nested stacking context inside the
+gate doesn't let the cursor "leak" above it. No pointer-events or
+z-index conflict was actually present.
+
+**The real bug** was in the cursor elements' own computed `transform`:
+`matrix(1, 0, 0, 1, 640, 450)` — the exact center of a 1280×900
+viewport. `cursor.js` defaults to `window.innerWidth/2,
+window.innerHeight/2` as its starting position before any real
+`mousemove` has ever fired. Since the gate opens immediately on page
+load and the dialog is itself centered, that default coordinate lands
+exactly on the password input and Continue button — precisely
+matching "only happens when the mouse is over the input and Continue
+button." `opacity: 0` and `pointer-events: none` were both confirmed
+correctly set on these elements, so this was never a real click-through
+risk, but the elements' own 200ms opacity transition meant a
+partially-faded ring could sit at exactly that position while fading
+out — a real, confirmable visual artifact.
+
+Fixed by moving the cursor elements genuinely off-screen (`-9999px`)
+in the same call that hides them, rather than leaving them at their
+last (possibly default-center) coordinates during the fade. Position
+changes on these elements are instant — only `opacity` is transitioned
+— so this takes effect immediately, no timing gap.
+
+Verified by reproducing the exact failure condition directly: loaded
+the page and checked the cursor's actual bounding box with **zero**
+mouse movement performed first (the precise scenario that would
+previously default to the viewport center) — confirmed both the CSS
+custom properties and the real rendered bounding box report
+`(-9999, -9999)`, genuinely off-screen, not a variable that happens to
+be unused. Re-ran the complete existing test suite afterward: `inert`
+still applies and clears correctly, focus trap still wraps at both
+ends, wrong-password and the visibility toggle both still work, and —
+critically — after a successful unlock, moving the real mouse to
+`(500, 400)` shows the dot exactly there and the ring correctly
+converging, confirming `resume()` genuinely restores live position
+tracking rather than leaving anything stuck off-screen. Reproduced the
+identical off-screen-on-load behavior on `tatheer.html` independently.
+Zero failed requests, zero console errors on any of the three pages.
+
+## Definitive diagnostic + full DOM unmount
+
+**Printed the exact diagnostic requested before changing anything**:
+z-index, position, parent, and DOM order for the gate, overlay,
+dialog, and both cursor elements. Result: `.cs-gate` (z-index 10000)
+and `.cursor-dot-wrap`/`.cursor-ring-wrap` (z-index 9999) are all
+direct children of the same `<body>` — the exact same stacking
+context. Per CSS spec, when siblings share a stacking context, the
+higher z-index wins unconditionally; DOM order is only a tiebreaker
+when z-index values are equal. 10000 vs. 9999 is unambiguous — the
+gate already painted above the cursor with mathematical certainty
+in the code as it stood. None of the four hypothesized causes (portal
+with higher z-index, `position:fixed` with extreme z-index issue, a
+"rendering layer" independent of pointer-events, or split stacking
+contexts) were actually possible given these confirmed numbers —
+stated plainly rather than continuing to guess.
+
+**Implemented the strongest guarantee anyway**, exactly as specified:
+full DOM removal, not a hide. `suspend()` now calls `.remove()` on
+both cursor elements — they are not present anywhere in the document
+while the gate is open, not moved off-screen, not opacity-masked.
+`resume()` re-appends them via `appendChild()` and restarts listeners
+and the animation loop from there.
+
+Verified this in the strongest way available: checked
+`!!document.querySelector('.cursor-dot-wrap')` while the gate was open
+and got `false` — the element is not merely invisible, it does not
+exist in the document at all. Printed `document.body.children`
+directly and confirmed no cursor-related nodes appear in the list
+while locked. After a correct password, re-ran the same checks and
+confirmed the elements reappear in `document.body.children`, and that
+moving the real mouse afterward correctly repositions the remounted
+dot to the exact new coordinates — full functional restoration, not
+just DOM presence. Reproduced the identical "genuinely absent from the
+DOM" result independently on `tatheer.html`.
+
+Re-ran the complete existing gate test suite on top of this: `inert`
+still applies and clears correctly, focus trap still wraps at both
+ends, wrong-password handling and the visibility toggle both still
+work, and a real click on previously-blocked content succeeds after
+unlock. Zero failed requests, zero console errors on any of the three
+pages.
+
+## Exhaustive re-verification — code confirmed clean, added password-manager icon suppression
+
+Re-ran the DOM inspection fresh, from every angle possible, in
+response to a report that the issue persisted after last round's full
+unmount fix:
+- `document.querySelector('.cursor-dot-wrap')` → `null`
+- `document.getElementsByClassName('cursor-dot-wrap').length` → `0`
+- Searched literally every element in the document for "cursor"
+  anywhere in its class name — only match was `<body>` itself (a state
+  class, not a rendered node)
+- Dumped `document.body.children` in full — 7 items, none
+  cursor-related
+- Compared `document.body.innerHTML.length` before and after hovering
+  the password input directly — byte-for-byte identical, confirming
+  nothing new appears in the DOM at that exact spot
+
+This rules out the custom cursor code as the cause with as much
+certainty as browser introspection allows — there is nothing there to
+mis-layer. Said so directly rather than continuing to adjust code that
+provably isn't the source.
+
+**Considered what actually matches the reported symptom pattern**
+("only over the password input and Continue button, never elsewhere
+on the overlay") given the page code is clean: browser-native and
+password-manager-extension UI (Chrome's own reveal-password icon,
+1Password/LastPass/Dashlane/Bitwarden autofill icons) is injected
+directly into password fields, entirely outside the page's own DOM and
+CSS, and is scoped specifically to form fields — which would produce
+exactly this pattern. The gate's own custom eye-icon toggle sits in
+that exact same position inside the input, making an overlap easy to
+mistake for something rendering above the dialog.
+
+Added the standard attribute set extensions use to suppress this —
+`data-lpignore="true"` (LastPass), `data-1p-ignore="true"`
+(1Password), `data-bwignore="true"` (Bitwarden), `data-form-type="other"`
+(a general signal several managers respect) — alongside the existing
+`autocomplete="off"`, on both case study pages' password inputs.
+
+Verified all three pages still load clean after this addition. No
+other code changed this round, since the exhaustive check found
+nothing left to fix on the page's own side.
+
 ## Known gap
 
 - Nav has a "Skills" link (`#skills`), but there is no Skills section
