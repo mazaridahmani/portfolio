@@ -137,15 +137,50 @@
     // context — there is no stronger guarantee than this.
     if (dotWrap.isConnected) dotWrap.remove();
     if (ringWrap.isConnected) ringWrap.remove();
+    // Removing this class is what actually restores the native
+    // cursor: every custom-cursor CSS rule (cursor:none on buttons/
+    // links, cursor:text on inputs) is gated behind
+    // body.has-custom-cursor. Without the class, everything simply
+    // falls back to the browser's own default cursor behavior —
+    // auto on the page, text on inputs, pointer on buttons — with no
+    // new CSS needed for this at all.
+    document.body.classList.remove('has-custom-cursor');
   }
 
   function resume() {
     if (!suspended) return;
     suspended = false;
+    document.body.classList.add('has-custom-cursor');
     if (!dotWrap.isConnected) document.body.appendChild(dotWrap);
     if (!ringWrap.isConnected) document.body.appendChild(ringWrap);
     addAllListeners();
-    if (hasPositioned) document.body.classList.remove('cursor-hidden');
+    // Reveal unconditionally, not gated behind hasPositioned — while
+    // the gate was open, its mousemove listener was removed entirely
+    // (that's the whole point of a genuine suspend), so hasPositioned
+    // typically never becomes true during that window even though the
+    // user has obviously been moving their mouse to interact with the
+    // dialog. Waiting for it here would leave the cursor invisible
+    // until the next movement instead of appearing instantly.
+    // mouseX/mouseY always holds a reasonable value — either a real
+    // prior position or the sensible viewport-center default — and
+    // ringX/ringY are set to match immediately below so the ring
+    // doesn't animate in from a stale position.
+    ringX = mouseX;
+    ringY = mouseY;
+    ringWrap.style.setProperty('--cx', `${ringX}px`);
+    ringWrap.style.setProperty('--cy', `${ringY}px`);
+    hasPositioned = true;
+    // Instant reappearance, no fade — briefly disable the wrap
+    // elements' own opacity transition, clear cursor-hidden, force
+    // a reflow so the browser applies it immediately, then restore
+    // the transition for its normal use elsewhere (e.g. the mouse
+    // leaving/entering the browser window).
+    dotWrap.style.transition = 'none';
+    ringWrap.style.transition = 'none';
+    document.body.classList.remove('cursor-hidden');
+    void dotWrap.offsetWidth;
+    dotWrap.style.transition = '';
+    ringWrap.style.transition = '';
     rafId = requestAnimationFrame(tick);
   }
 

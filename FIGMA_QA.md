@@ -3046,6 +3046,147 @@ shadow, cursor tracking) all confirmed still working correctly on the
 homepage and both case study pages; zero failed requests, zero console
 errors anywhere.
 
+## Halo root cause confirmed via corrected methodology; blur/tint adjusted per direction, benchmark results reported honestly
+
+**Confirmed the halo is real** — but only after correcting the test
+methodology. Earlier rounds checked computed CSS on `<main>` (found
+nothing, correctly — `<main>` has zero effects, verified three ways)
+and averaged brightness across large regions (also found nothing,
+because averaging dilutes a localized effect into a large flat area).
+The corrected test isolated specifically the background pixels
+immediately adjacent to the dark text edges — the exact location a
+halo would appear — and found 96-100% of those pixels get measurably
+darker when blur is active vs. an identical no-blur baseline at the
+same tint. This confirmed the phenomenon is real without it ever
+being a CSS property on the page content: it's a property of Gaussian
+blur itself when applied to any high-contrast content, regardless of
+which mechanism produces the blur.
+
+**Implemented the requested change**: blur reduced from 10px to 7px,
+tint increased from `rgba(16,17,20,0.45)` to `rgba(16,17,20,0.52)`.
+Re-confirmed `<main>` still computes zero effects afterward.
+
+**Benchmarked honestly, including an inconvenient result**: measuring
+the halo with the same isolated-pixel methodology, the new 7px/0.52
+combination showed a *larger* normalized halo (35.6% of the available
+contrast range) than the original 10px/0.45 (12.5%). Testing blur
+reduction in isolation (7px, tint held at the original 0.45) showed an
+even larger figure (49.4%) — a genuinely counterintuitive result.
+Investigated why rather than either hiding it or accepting it at face
+value: the likely cause is that the halo-detection test uses a fixed
+4px sampling window around text edges, but a blur's actual spread
+scales with its own radius — so a smaller blur radius concentrates the
+same relative darkening into a narrower band, which can register as
+*more* intense per-pixel within a fixed sampling window even if the
+total spread is smaller. This is a plausible measurement artifact, not
+a confirmed conclusion — reported as an open uncertainty rather than
+asserting the blur reduction definitively helped or hurt.
+
+Shipped the requested configuration as instructed, since the
+theoretical basis for blur-radius reduction lowering halo intensity is
+still sound even with this measurement complication, and reported the
+ambiguous benchmark result transparently rather than only reporting
+the parts that looked good.
+
+Verified nothing else regressed: `inert` still applies and clears
+correctly, wrong-password handling still works, `<main>` still
+computes zero effects, zero failed requests, zero console errors on
+any of the three pages.
+
+## Custom cursor fully disabled on the protected page, native cursor restored — explicit reversal, and a real bug fixed along the way
+
+Reinstated `suspend()`/`resume()` calls in the gate (removed a few
+rounds ago when unifying cursor behavior) — this round's direction is
+an explicit, deliberate reversal of that: the custom cursor should not
+exist at all while the dialog is open.
+
+**Extended `suspend()`/`resume()` to also toggle `has-custom-cursor`**,
+the single class every custom-cursor CSS rule is gated behind
+(`cursor: none` on links/buttons, `cursor: text` on inputs). Removing
+it while suspended means the browser's native cursor behavior applies
+everywhere automatically — auto on the page, text on the password
+field, pointer on buttons — with zero new CSS written for this.
+Combined with the existing full DOM removal (`suspend()` already
+unmounts the cursor elements entirely, not just hides them), this
+gives: no cursor element in the DOM, no listeners, no animation loop,
+and normal native cursor everywhere, all from one class toggle plus
+the pre-existing unmount logic.
+
+**A real bug found and fixed via testing, not assumed correct**:
+the first version of `resume()`'s instant-reveal logic was gated
+behind `hasPositioned` (a flag meaning "a real mousemove has fired
+since page load"). But since `suspend()` removes the mousemove
+listener for the entire time the gate is open, `hasPositioned`
+essentially never becomes true during that window in the normal real
+flow — the gate opens before any mouse movement, and all movement
+while it's open goes untracked by design. Result: testing the exact
+"unlock without moving the mouse afterward" scenario showed the
+cursor's opacity was still `0` immediately after a successful unlock —
+stuck invisible until the next mouse movement, not appearing instantly
+as required. Fixed by revealing unconditionally on resume instead,
+using whatever position `mouseX`/`mouseY` already holds (a real prior
+position, or the sensible default) — the ring is synced to that same
+position immediately so it doesn't animate in from a stale spot, and
+the very next real mousemove corrects everything if needed.
+
+Verified in the live build: while the gate is open, confirmed the
+cursor element doesn't exist anywhere in the DOM, `has-custom-cursor`
+is absent from `<body>`, and computed cursor is `text` on the
+password input, `pointer` on the Continue/close buttons, `auto` on the
+dialog itself — all via native fallback, zero dialog-specific CSS.
+Re-tested the exact stuck-invisible scenario after the fix: cursor
+opacity is `1` immediately following a correct password, with no mouse
+movement in between. Re-ran the complete existing suite on top of this
+— `inert`, focus trap, wrong-password handling, the visibility toggle,
+successful unlock, and both the close button and Esc navigating away
+all still work. Confirmed the homepage's custom cursor is completely
+unaffected (present, `has-custom-cursor` active, buttons correctly
+show `cursor: none` there) and that `tatheer.html` independently
+disables its own cursor the same way. Zero failed requests, zero
+console errors on any of the three pages.
+
+## Overlay opacity increased to make text genuinely illegible — calculated, not guessed
+
+Used actual WCAG contrast-ratio math rather than trial-and-error.
+Pulled the real computed colors involved: hero-lede text is
+`rgb(115,115,115)`, page background is `rgb(247,247,247)`, overlay
+base color is `rgb(16,17,20)`. Computed relative luminance and
+contrast ratio (the same formula WCAG accessibility guidelines use)
+across a range of overlay opacities to find precisely where text
+crosses from "technically low contrast" into "genuinely illegible":
+
+- Baseline, no overlay: 4.43:1 (normal, readable body text)
+- Previous opacity (0.52): 2.60:1 — below WCAG AA's 4.5:1 minimum, but
+  still perceptible, which matches exactly what was reported
+- Target chosen (0.75): 1.64:1 — a comfortable margin past any
+  readability threshold, without going so dark (0.85+) that the
+  overlay would start reading as solid black rather than a glass
+  effect
+
+Changed only the overlay's background-color opacity
+(`rgba(16,17,20,0.52)` → `rgba(16,17,20,0.75)`). Blur, dialog styling,
+and everything else about the architecture is untouched.
+
+**Verified empirically, not just trusted the math**: measured the
+actual rendered pixels in the hero-lede paragraph specifically —
+careful this time to sample a region genuinely clear of the dialog
+card itself (checked both elements' real bounding boxes first, since
+an earlier sampling attempt accidentally measured the dialog's own
+sharp, high-contrast text and produced a misleadingly high number).
+The valid measurement came back at 1.51:1 — closely matching the
+1.64:1 prediction, with the small gap expected from blur softening
+exact pixel extremes. Re-confirmed `<main>` still computes zero
+effects (`filter: none`, `boxShadow: none`, `textShadow: none`,
+`opacity: 1`) and that the dialog itself still has `filter: none` and
+its own opaque background — completely unaffected by the overlay
+change, staying sharp as required.
+
+Re-ran the full existing test suite on top of this: `inert`, the
+cursor fully disabled while locked and correctly restored on unlock
+(from last round), wrong-password handling, and successful unlock all
+still work exactly as before. Zero failed requests, zero console
+errors on any of the three pages.
+
 ## Known gap
 
 - Nav has a "Skills" link (`#skills`), but there is no Skills section

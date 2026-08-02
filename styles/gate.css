@@ -21,9 +21,9 @@
   position: fixed;
   inset: 0;
   z-index: 10000;
-  background: rgba(16, 17, 20, 0.45);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: rgba(16, 17, 20, 0.75);
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
   opacity: 0;
   /* Only opacity transitions — the blur radius itself stays constant
      at all times. Animating backdrop-filter directly is what caused
