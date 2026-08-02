@@ -178,24 +178,24 @@ body.cs-gate-locked > *:not(.cs-gate) {
 
 .cs-gate-close {
   position: absolute;
-  top: 16px;
-  right: 16px;
-  width: 32px;
-  height: 32px;
+  top: 12px;
+  right: 12px;
+  width: 40px;
+  height: 40px;
   border-radius: var(--r-sm);
-  border: 1px solid transparent;
+  border: none;
   background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--ink-450);
-  transition: background-color 220ms ease-out, color 220ms ease-out, border-color 220ms ease-out;
+  opacity: 0.85;
+  transition: opacity 220ms ease-out, color 220ms ease-out;
 }
-.cs-gate-close svg { width: 16px; height: 16px; }
+.cs-gate-close svg { width: 19px; height: 19px; }
 .cs-gate-close:hover,
 .cs-gate-close:focus-visible {
-  background: var(--surface-media);
-  border-color: var(--line-tag);
+  opacity: 1;
   color: var(--ink-900);
 }
 
@@ -206,20 +206,17 @@ body.cs-gate-locked > *:not(.cs-gate) {
   transform: translateY(-50%);
   width: 28px;
   height: 28px;
-  border-radius: var(--r-sm);
   background: transparent;
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--ink-450);
-  transition: color 220ms ease-out, background-color 220ms ease-out;
+  transition: color 220ms ease-out;
 }
-.cs-gate-toggle svg { width: 18px; height: 18px; }
-.cs-gate-toggle .cs-gate-eye-off { display: none; }
-.cs-gate-toggle.is-visible .cs-gate-eye { display: none; }
-.cs-gate-toggle.is-visible .cs-gate-eye-off { display: block; }
+.cs-gate-toggle svg { width: 23px; height: 23px; max-width: none; flex-shrink: 0; }
 .cs-gate-toggle:hover,
-.cs-gate-toggle:focus-visible { color: var(--ink-900); background: var(--line-tag); }
+.cs-gate-toggle:focus-visible { color: var(--ink-900); }
 .cs-gate-input { padding-right: 44px; }
 
 @media (prefers-reduced-motion: reduce) {

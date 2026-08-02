@@ -21,7 +21,17 @@
   const submitBtn = document.getElementById('cs-gate-submit');
   const closeBtn = document.getElementById('cs-gate-close');
   const toggleBtn = document.getElementById('cs-gate-toggle');
+  const eyeIcon = document.getElementById('cs-gate-eye-icon');
   const dialog = gate.querySelector('.cs-gate-dialog');
+
+  // A single SVG element with its content swapped via JS, rather than
+  // two SVG siblings toggled with display:none — the latter triggered
+  // a real, confirmed browser layout bug where the flex container
+  // computed the visible icon's width incorrectly (non-square
+  // rendering) at initial page load specifically. Swapping content on
+  // one persistent element sidesteps it entirely.
+  const EYE_PATHS = '<path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M12.153 3.802c3.734.067 7.309 2.237 9.228 6.14a4.79 4.79 0 0 1 0 4.217c-1.92 3.902-5.494 6.072-9.228 6.14c-3.75.067-7.427-1.99-9.532-6.003a4.84 4.84 0 0 1 0-4.492c2.105-4.013 5.781-6.07 9.532-6.002m-7.761 6.932c3.545-6.759 11.99-6.425 15.195.09c.379.77.379 1.681 0 2.452c-3.205 6.515-11.65 6.849-15.195.09a2.84 2.84 0 0 1 0-2.632"/><path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M15.7 12.05a3.75 3.75 0 1 1-7.5 0a3.75 3.75 0 0 1 7.5 0m-3.75 1.75a1.75 1.75 0 1 0 0-3.5a1.75 1.75 0 0 0 0 3.5"/>';
+  const EYE_OFF_PATHS = '<path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" opacity="0.35" d="M12.153 3.802c3.734.067 7.309 2.237 9.228 6.14a4.79 4.79 0 0 1 0 4.217c-1.92 3.902-5.494 6.072-9.228 6.14c-3.75.067-7.427-1.99-9.532-6.003a4.84 4.84 0 0 1 0-4.492c2.105-4.013 5.781-6.07 9.532-6.002m-7.761 6.932c3.545-6.759 11.99-6.425 15.195.09c.379.77.379 1.681 0 2.452c-3.205 6.515-11.65 6.849-15.195.09a2.84 2.84 0 0 1 0-2.632"/><path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" opacity="0.35" d="M15.7 12.05a3.75 3.75 0 1 1-7.5 0a3.75 3.75 0 0 1 7.5 0m-3.75 1.75a1.75 1.75 0 1 0 0-3.5a1.75 1.75 0 0 0 0 3.5"/><path stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M3.5 3.5l17 17"/>';
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -106,11 +116,16 @@
 
   closeBtn.addEventListener('click', closeGate);
 
-  // Password visibility toggle
+  // Password visibility toggle. Focus is prevented from ever leaving
+  // the input in the first place — preventDefault on mousedown stops
+  // the button from taking focus at all (the default browser behavior
+  // for a button click), rather than letting focus jump away and then
+  // calling input.focus() to pull it back a moment later.
+  toggleBtn.addEventListener('mousedown', (e) => e.preventDefault());
   toggleBtn.addEventListener('click', () => {
     const showing = input.type === 'text';
     input.type = showing ? 'password' : 'text';
-    toggleBtn.classList.toggle('is-visible', !showing);
+    eyeIcon.innerHTML = showing ? EYE_PATHS : EYE_OFF_PATHS;
     toggleBtn.setAttribute('aria-pressed', String(!showing));
     toggleBtn.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
     input.focus();

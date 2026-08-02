@@ -3187,6 +3187,126 @@ cursor fully disabled while locked and correctly restored on unlock
 still work exactly as before. Zero failed requests, zero console
 errors on any of the three pages.
 
+## Real icons integrated, focus-preservation made genuinely robust
+
+Used the real uploaded Cuida Icons (lock and eye) rather than sourcing
+from an external library — consistent with how every other icon in
+this project has been handled, and confirmed both were already wired
+into the dialog markup with the correct real path data on both case
+study pages (checked directly, not assumed).
+
+**Eye-off icon**: only the "visibility on" state was provided, so
+constructed the off-state by reusing the exact same eye shape with a
+diagonal slash added — the standard convention for this icon pairing.
+Refined it from a full-opacity eye-plus-slash overlap (which read as a
+bit busy) to a dimmed base shape (35% opacity) with the slash as the
+dominant, clear signal — matching how this pairing is typically
+handled across professional icon sets.
+
+**Focus preservation made genuinely robust, not just restored after
+the fact**: added `preventDefault()` on the toggle button's own
+`mousedown` event, which stops it from ever taking focus away from the
+input in the first place — the standard, correct technique — rather
+than letting focus jump to the button and calling `.focus()` on the
+input a moment later to pull it back.
+
+Verified all the specific positioning requirements directly, not
+assumed from the CSS alone: toggle button's vertical center matches
+the input's vertical center exactly (525.8px = 525.8px); toggle sits
+11.5px inset from the input's right edge; the lock icon's container
+renders as a real 42×42px rounded box with actual SVG content inside,
+not empty. Confirmed focus genuinely never leaves the input during a
+toggle click (`document.activeElement` stays `cs-gate-input`
+throughout), the input's type and typed value both survive the
+toggle, and the eye/eye-off icons correctly swap visibility. Re-ran
+the complete existing gate test suite on top of this — `inert`,
+wrong-password handling, successful unlock, and cursor restore all
+still work. Confirmed both icons remain visible and correctly
+positioned on mobile. Zero failed requests, zero console errors on any
+of the three pages.
+
+## Close icon replaced with real provided asset
+
+Only the Close (X) SVG actually came through this round — the eye/
+eye-off file mentioned wasn't attached, flagged directly rather than
+guessing or reusing the existing eye icon unprompted.
+
+Replaced the close button's icon with the real Cuida X icon, same
+family as the lock/eye icons already in place. Updated per the exact
+spec: hit area grown from 32×32px to 40×40px, icon grown from 16px to
+19px, inset adjusted from 16px to 12px so the icon's visual position
+relative to the dialog corner stays consistent despite the larger hit
+area (rather than the button simply expanding further into the
+dialog). Removed the background/border reveal on hover entirely —
+hover is now strictly opacity (0.85→1) and color (`ink-450`→`ink-900`)
+only, matching "no background, no border, no shadow, ever" exactly as
+specified, at rest and on hover alike.
+
+Verified precisely: computed CSS confirms exactly `40px`/`19px` (an
+initial `bounding_box()` reading showed 38/18, traced to normal
+sub-pixel rendering rounding, not a real discrepancy, and confirmed by
+checking computed style directly instead); inset measured at exactly
+12px from both the dialog's top and right edges; rest-state background/
+border/box-shadow all confirmed `transparent`/`0px`/`none`, and — this
+was the part most likely to regress — confirmed the *hover* state
+shows the identical `transparent`/`0px`/`none` background/border/
+shadow, with only opacity and color having changed. Close button still
+correctly navigates away. Re-ran the complete existing gate test suite
+on top of this: `inert`, focus trap, wrong-password handling, the
+toggle, and successful unlock all still work. Zero failed requests,
+zero console errors on any of the three pages.
+
+## Eye icon sizing bug — fully resolved, root cause confirmed
+
+Picked back up from a previous round's honest stopping point (a
+genuine rendering bug that resisted the first several fix attempts).
+Continued methodically rather than guessing further:
+
+**Root cause, fully isolated**: reproduced the non-square rendering
+(16px wide × 23px tall, confirmed via both `getComputedStyle` and
+actual `getBoundingClientRect` geometry — not a reporting artifact) in
+a completely blank, isolated HTML file with none of the project's
+other CSS, proving it wasn't specific to this codebase. In that clean
+file, `flex-shrink: 0` alone fixed it. Traced why the same fix
+appeared not to work in the real project: an earlier HTML restructure
+in this same session had rewritten that CSS rule and silently dropped
+`flex-shrink: 0` in the process — restoring it should have been
+enough, but wasn't, which led to a full computed-style diff between
+the working isolated case and the real page. That diff surfaced the
+actual second factor: the project's own site-wide `img, svg {
+max-width: 100% }` rule (needed elsewhere, not something to remove
+globally) was still constraining this specific icon even with
+`flex-shrink: 0` present. Neither property alone was sufficient; the
+combination (`flex-shrink: 0` + `max-width: none`, scoped to just this
+icon) resolved it completely.
+
+**The input-height question, also resolved — traced, not dismissed**:
+a secondary symptom kept appearing where the input's height seemed to
+change from 46.08px to 48px. Noticed 48 × 0.96 = 46.08 exactly, which
+matched the dialog's own entrance-animation scale factor
+(`scale(0.96)` → `scale(1)`). Confirmed directly: measuring the
+input's height with the entrance animation fully settled, *before any
+interaction at all*, already showed 48px — meaning the CSS height
+never changed; earlier measurements had simply been taken while the
+dialog was still mid-animation. Not a bug, a measurement-timing
+artifact in testing methodology.
+
+Verified in the final state, animation fully settled: icon computed
+size is `23px`/`23px` (matching the requested ~30% increase from the
+original 18px), confirmed via actual rendered geometry as well, not
+just computed style; input height confirmed constant at 48px before
+and after a full interaction sequence (click, type, toggle); vertical
+centering between the input and toggle button confirmed aligned;
+toggle button confirmed fully invisible at rest and hover (transparent
+background, zero border, no shadow, at both states); focus confirmed
+to never leave the input through a toggle click; typed value survives
+the toggle; icon content correctly swaps between eye and eye-off
+states and remains square after swapping. Re-ran the complete existing
+gate test suite on top of this: `inert`, wrong-password handling,
+successful unlock, and cursor restore all still work. Confirmed
+identical icon sizing on `tatheer.html` independently. Zero failed
+requests, zero console errors on any of the three pages.
+
 ## Known gap
 
 - Nav has a "Skills" link (`#skills`), but there is no Skills section
